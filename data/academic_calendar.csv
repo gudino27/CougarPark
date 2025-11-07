@@ -1,0 +1,94 @@
+Year,Semester,Event_Type,Start_Date,End_Date,Description
+2020,Fall,Semester,2020-08-24,2020-12-18,Fall semester
+2020,Fall,Week_Of_Welcome,2020-08-17,2020-08-23,Week of Welcome (move-in week before Fall semester)
+2020,Fall,University_Holiday,2020-09-05,2020-09-07,Labor Day (Saturday-Monday 3-day weekend)
+2020,Fall,University_Holiday,2020-11-11,2020-11-11,Veterans Day
+2020,Fall,Thanksgiving_Break,2020-11-21,2020-11-29,Thanksgiving week (Saturday before through Sunday after)
+2020,Fall,Dead_Week,2020-12-07,2020-12-11,Dead Week before Fall finals (Monday-Friday)
+2020,Fall,Finals_Week,2020-12-14,2020-12-18,Fall finals week
+2020,Fall,Winter_Break,2020-12-19,2021-01-10,Winter break between semesters
+2021,Spring,Semester,2021-01-11,2021-05-07,Spring semester
+2021,Spring,University_Holiday,2021-01-16,2021-01-18,MLK Day (Saturday-Monday 3-day weekend)
+2021,Spring,University_Holiday,2021-02-13,2021-02-15,Presidents Day (Saturday-Monday 3-day weekend)
+2021,Spring,Spring_Break,2021-03-15,2021-03-19,Spring break (Monday-Friday)
+2021,Spring,Dead_Week,2021-04-26,2021-04-30,Dead Week before Spring finals (Monday-Friday)
+2021,Spring,Finals_Week,2021-05-03,2021-05-07,Spring finals week
+2021,Spring,University_Holiday,2021-05-29,2021-05-31,Memorial Day (Saturday-Monday 3-day weekend)
+2021,Summer,Semester,2021-05-17,2021-08-13,Summer session
+2021,Summer,University_Holiday,2021-07-03,2021-07-05,Independence Day observed (Saturday-Monday 3-day weekend)
+2021,Fall,Semester,2021-08-23,2021-12-17,Fall semester
+2021,Fall,Week_Of_Welcome,2021-08-16,2021-08-22,Week of Welcome (move-in week before Fall semester)
+2021,Fall,University_Holiday,2021-09-04,2021-09-06,Labor Day (Saturday-Monday 3-day weekend)
+2021,Fall,University_Holiday,2021-11-11,2021-11-11,Veterans Day
+2021,Fall,Thanksgiving_Break,2021-11-20,2021-11-28,Thanksgiving week (Saturday before through Sunday after)
+2021,Fall,Dead_Week,2021-12-06,2021-12-10,Dead Week before Fall finals (Monday-Friday)
+2021,Fall,Finals_Week,2021-12-13,2021-12-17,Fall finals week
+2021,Fall,Winter_Break,2021-12-18,2022-01-09,Winter break between semesters
+2022,Spring,Semester,2022-01-10,2022-05-06,Spring semester
+2022,Spring,University_Holiday,2022-01-15,2022-01-17,MLK Day (Saturday-Monday 3-day weekend)
+2022,Spring,University_Holiday,2022-02-19,2022-02-21,Presidents Day (Saturday-Monday 3-day weekend)
+2022,Spring,Spring_Break,2022-03-14,2022-03-18,Spring break (Monday-Friday)
+2022,Spring,Dead_Week,2022-04-25,2022-04-29,Dead Week before Spring finals (Monday-Friday)
+2022,Spring,Finals_Week,2022-05-02,2022-05-06,Spring finals week
+2022,Spring,University_Holiday,2022-05-28,2022-05-30,Memorial Day (Saturday-Monday 3-day weekend)
+2022,Summer,Semester,2022-05-16,2022-08-12,Summer session
+2022,Summer,University_Holiday,2022-07-02,2022-07-04,Independence Day observed (Saturday-Monday 3-day weekend)
+2022,Fall,Semester,2022-08-22,2022-12-16,Fall semester
+2022,Fall,Week_Of_Welcome,2022-08-15,2022-08-21,Week of Welcome (move-in week before Fall semester)
+2022,Fall,University_Holiday,2022-09-03,2022-09-05,Labor Day (Saturday-Monday 3-day weekend)
+2022,Fall,University_Holiday,2022-11-11,2022-11-11,Veterans Day
+2022,Fall,Thanksgiving_Break,2022-11-19,2022-11-27,Thanksgiving week (Saturday before through Sunday after)
+2022,Fall,Dead_Week,2022-12-05,2022-12-09,Dead Week before Fall finals (Monday-Friday)
+2022,Fall,Finals_Week,2022-12-12,2022-12-16,Fall finals week
+2022,Fall,Winter_Break,2022-12-17,2023-01-08,Winter break between semesters
+2023,Spring,Semester,2023-01-09,2023-05-05,Spring semester
+2023,Spring,University_Holiday,2023-01-14,2023-01-16,MLK Day (Saturday-Monday 3-day weekend)
+2023,Spring,University_Holiday,2023-02-18,2023-02-20,Presidents Day (Saturday-Monday 3-day weekend)
+2023,Spring,Spring_Break,2023-03-13,2023-03-17,Spring break (Monday-Friday)
+2023,Spring,Dead_Week,2023-04-24,2023-04-28,Dead Week before Spring finals (Monday-Friday)
+2023,Spring,Finals_Week,2023-05-01,2023-05-05,Spring finals week
+2023,Spring,University_Holiday,2023-05-27,2023-05-29,Memorial Day (Saturday-Monday 3-day weekend)
+2023,Summer,Semester,2023-05-15,2023-08-11,Summer session
+2023,Summer,University_Holiday,2023-07-01,2023-07-04,Independence Day (Saturday-Tuesday 4-day weekend)
+2023,Fall,Semester,2023-08-21,2023-12-15,Fall semester
+2023,Fall,Week_Of_Welcome,2023-08-14,2023-08-20,Week of Welcome (move-in week before Fall semester)
+2023,Fall,University_Holiday,2023-09-02,2023-09-04,Labor Day (Saturday-Monday 3-day weekend)
+2023,Fall,University_Holiday,2023-11-10,2023-11-11,Veterans Day (Friday-Saturday)
+2023,Fall,Thanksgiving_Break,2023-11-18,2023-11-26,Thanksgiving week (Saturday before through Sunday after)
+2023,Fall,Dead_Week,2023-12-04,2023-12-08,Dead Week before Fall finals (Monday-Friday)
+2023,Fall,Finals_Week,2023-12-11,2023-12-15,Fall finals week
+2023,Fall,Winter_Break,2023-12-16,2024-01-07,Winter break between semesters
+2024,Spring,Semester,2024-01-08,2024-05-03,Spring semester
+2024,Spring,University_Holiday,2024-01-13,2024-01-15,MLK Day (Saturday-Monday 3-day weekend)
+2024,Spring,University_Holiday,2024-02-17,2024-02-19,Presidents Day (Saturday-Monday 3-day weekend)
+2024,Spring,Spring_Break,2024-03-11,2024-03-15,Spring break (Monday-Friday)
+2024,Spring,Dead_Week,2024-04-22,2024-04-26,Dead Week before Spring finals (Monday-Friday)
+2024,Spring,Finals_Week,2024-04-29,2024-05-03,Spring finals week
+2024,Spring,University_Holiday,2024-05-25,2024-05-27,Memorial Day (Saturday-Monday 3-day weekend)
+2024,Summer,Semester,2024-05-13,2024-08-09,Summer session
+2024,Summer,University_Holiday,2024-07-04,2024-07-04,Independence Day (Thursday)
+2024,Fall,Semester,2024-08-19,2024-12-13,Fall semester
+2024,Fall,Week_Of_Welcome,2024-08-12,2024-08-18,Week of Welcome (move-in week before Fall semester)
+2024,Fall,University_Holiday,2024-08-31,2024-09-02,Labor Day (Saturday-Monday 3-day weekend)
+2024,Fall,University_Holiday,2024-11-11,2024-11-11,Veterans Day (Monday - already 3-day weekend)
+2024,Fall,Thanksgiving_Break,2024-11-23,2024-12-01,Thanksgiving week (Saturday before through Sunday after)
+2024,Fall,Dead_Week,2024-12-02,2024-12-06,Dead Week before Fall finals (Monday-Friday)
+2024,Fall,Finals_Week,2024-12-09,2024-12-13,Fall finals week
+2024,Fall,Winter_Break,2024-12-14,2025-01-12,Winter break between semesters
+2025,Spring,Semester,2025-01-13,2025-05-09,Spring semester
+2025,Spring,University_Holiday,2025-01-18,2025-01-20,MLK Day (Saturday-Monday 3-day weekend)
+2025,Spring,University_Holiday,2025-02-15,2025-02-17,Presidents Day (Saturday-Monday 3-day weekend)
+2025,Spring,Spring_Break,2025-03-10,2025-03-14,Spring break (Monday-Friday)
+2025,Spring,Dead_Week,2025-04-28,2025-05-02,Dead Week before Spring finals (Monday-Friday)
+2025,Spring,Finals_Week,2025-05-05,2025-05-09,Spring finals week
+2025,Spring,University_Holiday,2025-05-24,2025-05-26,Memorial Day (Saturday-Monday 3-day weekend)
+2025,Summer,Semester,2025-05-12,2025-08-08,Summer session
+2025,Summer,University_Holiday,2025-07-04,2025-07-04,Independence Day (Friday)
+2025,Fall,Semester,2025-08-25,2025-12-19,Fall semester
+2025,Fall,Week_Of_Welcome,2025-08-18,2025-08-24,Week of Welcome (move-in week before Fall semester)
+2025,Fall,University_Holiday,2025-08-30,2025-09-01,Labor Day (Saturday-Monday 3-day weekend)
+2025,Fall,University_Holiday,2025-11-11,2025-11-11,Veterans Day (Tuesday)
+2025,Fall,Thanksgiving_Break,2025-11-22,2025-11-30,Thanksgiving week (Saturday before through Sunday after)
+2025,Fall,Dead_Week,2025-12-08,2025-12-12,Dead Week before Fall finals (Monday-Friday)
+2025,Fall,Finals_Week,2025-12-15,2025-12-19,Fall finals week
+2025,Fall,Winter_Break,2025-12-20,2026-01-11,Winter break between semesters

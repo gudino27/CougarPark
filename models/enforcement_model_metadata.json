@@ -1,0 +1,72 @@
+{
+  "model_type": "XGBoost Tuned with Lag Features - Enforcement Risk",
+  "performance": {
+    "test_roc_auc": 0.9771355650704131,
+    "best_cv_roc_auc": 0.9195991416996869,
+    "test_accuracy": 0.9777348484848485,
+    "confusion_matrix": [
+      [
+        127030,
+        2354
+      ],
+      [
+        585,
+        2031
+      ]
+    ]
+  },
+  "hyperparameters": {
+    "subsample": 0.9,
+    "scale_pos_weight": 50.22307767274145,
+    "reg_lambda": 1,
+    "reg_alpha": 0.5,
+    "n_estimators": 100,
+    "max_depth": 15,
+    "learning_rate": 0.05,
+    "colsample_bytree": 0.8
+  },
+  "features": {
+    "total": 60,
+    "original": 52,
+    "lag_features": 8,
+    "lag_names": [
+      "enforcement_lag_1",
+      "tickets_lag_1",
+      "enforcement_lag_24",
+      "tickets_lag_24",
+      "enforcement_rolling_3",
+      "enforcement_rolling_24",
+      "tickets_rolling_24",
+      "enforcement_dow_hour_avg"
+    ]
+  },
+  "risk_thresholds": {
+    "VERY_LOW": 0.05,
+    "LOW": 0.15,
+    "MODERATE": 0.3,
+    "HIGH": 0.5,
+    "VERY_HIGH": 0.5
+  },
+  "risk_messages": {
+    "VERY_LOW": "You will likely NOT get a ticket at this time. Safe to park!",
+    "LOW": "Low risk - tickets are uncommon at this time, but not impossible.",
+    "MODERATE": "Moderate risk - enforcement happens sometimes at this time.",
+    "HIGH": "HIGH chance of getting a ticket! Consider another time or zone.",
+    "VERY_HIGH": "VERY HIGH chance of ticket! Enforcement is very active at this time."
+  },
+  "probability_percentiles": {
+    "10th": 0.0033537147101014853,
+    "25th": 0.0035244766622781754,
+    "50th": 0.004631892079487443,
+    "75th": 0.019145823549479246,
+    "90th": 0.08248686045408256,
+    "95th": 0.21185626760125154
+  },
+  "training_date": "2025-11-06 23:02:44",
+  "data_summary": {
+    "train_records": 525600,
+    "test_records": 132000,
+    "zones": 25,
+    "date_range": "2022-07-01 00:00:00 to 2025-06-30 00:00:00"
+  }
+}

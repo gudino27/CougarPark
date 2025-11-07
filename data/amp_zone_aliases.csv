@@ -1,0 +1,60 @@
+AMP_Zone_Name,Lot_number,Standard_Zone_Name,zone_type,is_dorm_parking
+Green 1 PACCAR South,10,Green 1,Permit,0
+Green 1 Bustad Lot,10,Green 1,Permit,0
+Green 1 Rotunda/Gannon-Goldsworthy,10,Green 1,Permit,0
+Green 2 KMac Lot,36,Green 2,Permit,0
+Green 2 McAllister,36,Green 2,Permit,0
+Green 3: (Gravel lot) College/Spokane,9,Green 3,Permit,0
+Green 3: (Gravel lot) Columbia/Spokane,9,Green 3,Permit,0
+Green 3: College Avenue -or- Idaho St,9,Green 3,Permit,0
+Green 3: Washington St street-side & Spark,9,Green 3,Permit,0
+Green 3: Thermal Fluids/Dana West,9,Green 3,Permit,0
+Green 3: Spokane St,9,Green 3,Permit,0
+Green 3: Washington St,9,Green 3,Permit,0
+Green 3: Commons,9,Green 3,Permit,0
+Green 3: Football General Parking,9,Green 3,Permit,0
+Green 4 Gravel Lot,81,Green 4,Permit,0
+Green 5 South Beasley,30,Green 5,Hourly,0
+Red 1 Cooper East,107,Red 1,Permit,0
+Red 1 Grimes Feed Lot,107,Red 1,Permit,0
+Red 5 Tennis Courts Lot,162,Red 5,Permit,0
+Yellow 1 IPF Lot,27,Yellow 1,Permit,0
+Yellow 2 Carver Farm,33,Yellow 2,Resident,0
+Yellow 3: Spring Street Lot,170,Yellow 3,Permit,0
+CUE Garage,150,Paid,Hourly,0
+Library Garage,155,Paid,Permit,0
+Daggy Garage,148,Paid,University Vehicles,0
+Fine Arts Garage,149,Paid,University Vehicles,0
+Student Rec Center,144,Paid,University Vehicles,0
+B St Hourly Lot,191,Paid,University Vehicles,0
+Wilson Road on Street Meters,189,Paid,University Vehicles,0
+Cougar Way on Street Meters,189,Paid,University Vehicles,0
+Thatuna Rd. on Street Meters,189,Paid,University Vehicles,0
+Ferdinand's Ice Cream Shoppe Parking,190,Paid,Permit,0
+Columbia Street Lot Top Bays,192,Paid,Permit,0
+Spring Street Lot,170,Paid,Permit,0
+ESF Cultural Center Lot,165,Paid,Resident,0
+Cougar Health Services: Patron Parking,144,Paid,University Vehicles,0
+Forest Way (Red 4) Lots: Football General Parking,141,Red 4,Permit,0
+Cougar Way: Football General Parking,9,Green 3,Permit,0
+McCoy Hall Lot: Football General Parking,9,Green 3,Permit,0
+Streit-Perham Lot: Football General Parking,9,Green 3,Permit,0
+B St Lots: Football General Parking,191,Paid,University Vehicles,0
+SPARK: Football General Parking,9,Green 3,Permit,0
+Thatuna & Linden Lots/Streetside: Football General Parking,189,Paid,University Vehicles,0
+Spokane St Gravel Lots: Football General Parking,9,Green 3,Permit,0
+Carver Farms Lot: Football General Parking,33,Yellow 2,Resident,0
+McClusky: Football General Parking,9,Green 3,Permit,0
+Bustad - AMP Marked spots,10,Green 1,Permit,0
+McEachern Hall_Amp Spots,10,Green 1,Permit,0
+Streit-Perham AMP spots,9,Green 3,Permit,0
+Rogers_AMP Spots,10,Green 1,Permit,0
+Stephenson_AMP Spots,10,Green 1,Permit,0
+Perham Rear Entrance AMP spot,9,Green 3,Permit,0
+Duncan-Dunn Parking,10,Green 1,Permit,0
+Olympia Hall_AMP Spots,10,Green 1,Permit,0
+Orton_Amp Spots,10,Green 1,Permit,0
+Scott-Coman: AMP Marked Spot,10,Green 1,Permit,0
+Regents: AMP Marked Spot,10,Green 1,Permit,0
+Environmental Health Services,144,Paid,University Vehicles,0
+McCluskey Services Visitor Spaces,144,Paid,University Vehicles,0
