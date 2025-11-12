@@ -1,0 +1,127 @@
+.feedback-form {
+  padding: 20px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border: 2px solid #981e32;
+  margin-top: 20px;
+}
+
+.feedback-form.success {
+  background: #e8f5e9;
+  border-color: #2e7d32;
+  text-align: center;
+  padding: 30px;
+}
+
+.feedback-form.success h3 {
+  color: #2e7d32;
+  margin: 0 0 10px 0;
+}
+
+.feedback-form.success p {
+  color: #1b5e20;
+  margin: 0;
+}
+
+.feedback-form h3 {
+  margin: 0 0 10px 0;
+  color: #333;
+}
+
+.feedback-form > p {
+  color: #5E6A71;
+  margin: 0 0 20px 0;
+  font-size: 0.9rem;
+}
+
+.feedback-buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.feedback-btn {
+  padding: 15px;
+  border: 2px solid #ddd;
+  background: white;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.feedback-btn:hover {
+  border-color: #981e32;
+}
+
+.feedback-btn.selected {
+  font-weight: 600;
+}
+
+.feedback-btn.selected.yes {
+  background: #e8f5e9;
+  border-color: #2e7d32;
+  color: #2e7d32;
+}
+
+.feedback-btn.selected.no {
+  background: #ffebee;
+  border-color: #c62828;
+  color: #c62828;
+}
+
+.input-group {
+  margin-bottom: 20px;
+}
+
+.input-group label {
+  display: block;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #5E6A71;
+  margin-bottom: 5px;
+}
+
+.input-group input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 1rem;
+}
+
+.input-group input:focus {
+  outline: none;
+  border-color: #981e32;
+  box-shadow: 0 0 0 2px rgba(152, 30, 50, 0.1);
+}
+
+.submit-btn {
+  width: 100%;
+  padding: 12px;
+  background: #981e32;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.submit-btn:hover:not(:disabled) {
+  background: #7a1828;
+}
+
+.submit-btn:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+@media (max-width: 600px) {
+  .feedback-buttons {
+    grid-template-columns: 1fr;
+  }
+}

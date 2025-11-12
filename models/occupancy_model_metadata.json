@@ -1,42 +1,30 @@
 {
-  "model_type": "XGBoost Tuned with Lag Features",
+  "model_type": "LightGBM with Lag Features + Year Feature",
+  "training_date": "2025-11-11 10:59:53",
   "performance": {
-    "test_mae": 0.2712286114692688,
-    "test_rmse": 1.4579854096047604,
-    "test_r2": 0.981910765171051,
-    "val_mae": 0.2330569475889206,
-    "val_rmse": 1.3597512875365165,
-    "val_r2": 0.9827530980110168,
-    "train_mae": 0.10193756967782974
-  },
-  "hyperparameters": {
-    "n_estimators": 400,
-    "max_depth": 9,
-    "learning_rate": 0.04,
-    "subsample": 0.8,
-    "colsample_bytree": 0.8,
-    "reg_alpha": 0.1,
-    "reg_lambda": 1.0,
-    "random_state": 42,
-    "n_jobs": -1
+    "test_mae": 0.18304783256897644,
+    "test_rmse": 0.9133659731272873,
+    "test_r2": 0.990519735568202,
+    "val_mae": 0.23924980534366325,
+    "train_mae": 0.1269561375257061
   },
   "features": {
-    "total": 25,
-    "original": 21,
-    "lag_features": 5,
-    "lag_names": [
-      "occupancy_lag_1",
-      "occupancy_lag_24",
-      "occupancy_rolling_3",
-      "occupancy_rolling_24",
-      "occupancy_dow_hour_avg"
-    ]
+    "total": 27,
+    "base": 22,
+    "lags": 5,
+    "includes_year": true
   },
-  "training_date": "2025-11-06 22:52:21",
   "data_summary": {
-    "train_records": 7368638,
-    "val_records": 1452288,
-    "test_records": 2541442,
-    "zones": 62
+    "train_records": 8381612,
+    "val_records": 1624896,
+    "test_records": 916546,
+    "train_date_range": "2020-08-10 00:00:00 to 2024-08-31 00:00:00",
+    "train_years": {
+      "2020.0": 801792,
+      "2021.0": 2033335,
+      "2022.0": 2067360,
+      "2023.0": 2032727,
+      "2024.0": 1446398
+    }
   }
 }

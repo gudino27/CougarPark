@@ -1,0 +1,45 @@
+.find-parking-now {
+  padding: 30px;
+  background: linear-gradient(135deg, #981e32 0%, #7a1828 100%);
+  border-radius: 8px;
+  color: white;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.find-parking-now h2 {
+  margin: 0 0 10px 0;
+  font-size: 1.5rem;
+}
+
+.find-parking-now p {
+  margin: 0 0 20px 0;
+  opacity: 0.9;
+}
+
+.find-now-button {
+  padding: 15px 40px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  background: white;
+  color: #981e32;
+  border: none;
+  border-radius: 25px;
+  cursor: pointer;
+  transition: all 0.3s;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.find-now-button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+}
+
+.find-now-button:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.find-now-button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}

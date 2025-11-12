@@ -178,7 +178,6 @@ Lot_number,Zone_Name,zone_type,capacity,location_description,is_dorm_parking,alt
 184,Green 5,Permit,10,NORTH FAIRWAY LANE,0,,,,,,,,
 185,Red 1,Permit,1,VET FARMS SOUTH,0,,,,,,,,
 186,Green 1,Permit,4,MCEACHERN NORTH,1,,,,,,,,
-186,Red 5,Permit,,MCEACHERN NORTH,1,,,,,,,,
 187,Authorized Vehicles Only,University Vehicles,,CARVER FARM SERVICE,0,,,,,,,,
 188,Authorized Vehicles Only,University Vehicles,,SCOTT PLACE,1,,,,,,,,
 189,Authorized Vehicles Only,University Vehicles,60,HOG LANE AND WILSON RD. LOT,0,,,,,,,,

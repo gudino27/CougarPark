@@ -40,32 +40,23 @@ Model selection will depend on available data characteristics and prediction acc
  
 ```
 
-## Setup
-
-Create and activate virtual environment:
-
-```bash
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-pip install -r requirements.txt
-```
-
-Run Jupyter notebooks:
-
-```bash
-jupyter notebook
-# Or
-jupyter lab
-```
-
 ## Expected Outcomes
 
-- Hourly parking availability predictions for campus lots
+- **15-minute interval parking availability predictions** for campus lots
+- **Specific recommendations** (e.g., "23 spaces available at CUE Garage")
 - Identification of optimal parking times and locations
 - Reduced time spent searching for parking
 - Improved campus traffic flow
 - Data-driven insights into parking patterns and trends
-- see when enforcement is likely to pass by
+- Enforcement risk predictions (when citations are likely)
+
+### Data Quality Improvements
+
+- **Upgraded to 15-minute intervals:** Changed from hourly to 15-minute time granularity for more precise predictions
+- **Excluded invalid lots:** Removed lots 21, 50, 55, 56, 101, 178, 179 (no longer exist)
+- **Excluded special zones:** Removed B St Lot (church agreement) and JumpTest (test zone)
+- **Event-only parking flagged:** Football game zones marked separately
+- **Dead Week feature added:** Week before finals now tracked separately for unique parking patterns
 
 ## Team
 

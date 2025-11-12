@@ -1,33 +1,33 @@
 {
-  "model_type": "XGBoost Tuned with Lag Features - Enforcement Risk",
+  "model_type": "XGBoost Tuned with Lag Features + Year Feature - Enforcement Risk",
   "performance": {
-    "test_roc_auc": 0.9771355650704131,
-    "best_cv_roc_auc": 0.9195991416996869,
-    "test_accuracy": 0.9777348484848485,
+    "test_roc_auc": 0.9216479345540346,
+    "best_cv_roc_auc": 0.9056939731049335,
+    "test_accuracy": 0.8557513661202186,
     "confusion_matrix": [
       [
-        127030,
-        2354
+        122795,
+        20527
       ],
       [
-        585,
-        2031
+        591,
+        2487
       ]
     ]
   },
   "hyperparameters": {
-    "subsample": 0.9,
-    "scale_pos_weight": 50.22307767274145,
-    "reg_lambda": 1,
-    "reg_alpha": 0.5,
+    "subsample": 0.7,
+    "scale_pos_weight": 50.53439153439153,
+    "reg_lambda": 0.5,
+    "reg_alpha": 0,
     "n_estimators": 100,
     "max_depth": 15,
     "learning_rate": 0.05,
     "colsample_bytree": 0.8
   },
   "features": {
-    "total": 60,
-    "original": 52,
+    "total": 58,
+    "original": 50,
     "lag_features": 8,
     "lag_names": [
       "enforcement_lag_1",
@@ -38,7 +38,8 @@
       "enforcement_rolling_24",
       "tickets_rolling_24",
       "enforcement_dow_hour_avg"
-    ]
+    ],
+    "includes_year": true
   },
   "risk_thresholds": {
     "VERY_LOW": 0.05,
@@ -55,18 +56,24 @@
     "VERY_HIGH": "VERY HIGH chance of ticket! Enforcement is very active at this time."
   },
   "probability_percentiles": {
-    "10th": 0.0033537147101014853,
-    "25th": 0.0035244766622781754,
-    "50th": 0.004631892079487443,
-    "75th": 0.019145823549479246,
-    "90th": 0.08248686045408256,
-    "95th": 0.21185626760125154
+    "10th": 0.0033140131272375584,
+    "25th": 0.003480947110801935,
+    "50th": 0.007650663843378425,
+    "75th": 0.10490989871323109,
+    "90th": 0.8058202445507051,
+    "95th": 0.9445471376180649
   },
-  "training_date": "2025-11-06 23:02:44",
+  "training_date": "2025-11-11 19:39:34",
   "data_summary": {
-    "train_records": 525600,
-    "test_records": 132000,
+    "train_records": 584400,
+    "test_records": 146400,
     "zones": 25,
-    "date_range": "2022-07-01 00:00:00 to 2025-06-30 00:00:00"
+    "date_range": "2022-07-01 00:00:00 to 2025-10-30 00:00:00",
+    "train_years": {
+      "2022": 110400,
+      "2023": 219000,
+      "2024": 219600,
+      "2025": 35400
+    }
   }
 }

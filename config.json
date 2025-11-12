@@ -1,0 +1,20 @@
+{
+  "models": {
+    "occupancy": {
+      "enabled": true,
+      "description": "Zone-level parking occupancy prediction model (LightGBM)"
+    },
+    "enforcement": {
+      "enabled": true,
+      "description": "Lot-level ticket enforcement risk prediction model (XGBoost)"
+    }
+  },
+  "api": {
+    "port": 5000,
+    "host": "localhost"
+  },
+  "features": {
+    "quick_search": true,
+    "feedback_collection": true
+  }
+}
