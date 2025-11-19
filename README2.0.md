@@ -3,7 +3,7 @@
 <!-- HEADER STYLE: CLASSIC -->
 <div align="center">
 
-<img src="https://github.com/gudino27/CougarPark/blob/30a8ab5afc85e5e37b9ed666cac9f71b3c31b6c7/cougarpark.png" width="30%" style="position: relative; top: 0; right: 0;" alt="Project Logo"/>
+<img src="https://github.com/gudino27/CougarPark/blob/b4541b8f5c72b695a94e86aa11cb0c0daa9baf26/cougarpark.png" width="30%" style="position: relative; top: 0; right: 0;" alt="Project Logo"/>
 
 # COUGARPARK
 
