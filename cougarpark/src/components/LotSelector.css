@@ -1,0 +1,108 @@
+.lot-selector {
+  background: white;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  max-height: 600px;
+  display: flex;
+  flex-direction: column;
+}
+
+.lot-selector h3 {
+  margin: 0 0 16px 0;
+  color: #333;
+}
+
+.lot-selector.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  color: #666;
+}
+
+.lot-search {
+  width: 100%;
+  padding: 10px;
+  border: 2px solid #e0e0e0;
+  border-radius: 4px;
+  font-size: 14px;
+  margin-bottom: 16px;
+  box-sizing: border-box;
+}
+
+.lot-search:focus {
+  outline: none;
+  border-color: #a60f2d;
+}
+
+.lot-list {
+  flex: 1;
+  overflow-y: auto;
+  margin: -4px;
+}
+
+.lot-item {
+  padding: 12px;
+  margin: 4px;
+  border: 2px solid #e0e0e0;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.lot-item:hover {
+  border-color: #a60f2d;
+  background: #fff5f7;
+}
+
+.lot-item.selected {
+  border-color: #a60f2d;
+  background: #fff5f7;
+  box-shadow: 0 2px 4px rgba(166, 15, 45, 0.2);
+}
+
+.lot-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.lot-location {
+  font-weight: 600;
+  color: #333;
+  font-size: 15px;
+}
+
+.lot-zone {
+  background: #f0f0f0;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  color: #666;
+}
+
+.lot-description {
+  font-size: 13px;
+  color: #666;
+  margin-bottom: 4px;
+}
+
+.lot-capacity {
+  font-size: 12px;
+  color: #999;
+}
+
+.lot-alternative {
+  font-size: 11px;
+  color: #666;
+  font-style: italic;
+  margin-top: 4px;
+}
+
+.no-lots {
+  text-align: center;
+  padding: 40px;
+  color: #999;
+}

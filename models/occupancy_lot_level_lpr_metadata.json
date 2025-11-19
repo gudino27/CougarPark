@@ -1,0 +1,67 @@
+{
+  "model_type": "LightGBM with Lag Features (Lot-Level LPR)",
+  "training_date": "2025-11-18 23:47:05",
+  "num_lots": 185,
+  "performance": {
+    "train_mae": 0.49818420123040746,
+    "train_rmse": 4.770427237393083,
+    "train_r2": 0.23936781196244683,
+    "val_mae": 0.632633391478689,
+    "val_rmse": 6.040339588399365,
+    "val_r2": 0.17913004672444777,
+    "test_mae": 0.4053782414492039,
+    "test_rmse": 3.822556648725889,
+    "test_r2": 0.09090822143913901
+  },
+  "features": {
+    "total": 24,
+    "categorical": 6,
+    "lag_features": 5,
+    "feature_list": [
+      "hour",
+      "day_of_week",
+      "month",
+      "year",
+      "is_weekend",
+      "lot_number",
+      "Zone",
+      "capacity",
+      "is_game_day",
+      "is_dead_week",
+      "is_finals_week",
+      "is_any_break",
+      "temp_mean_f",
+      "precipitation_inches",
+      "weather_category",
+      "is_rainy",
+      "is_snowy",
+      "is_cold",
+      "is_hot",
+      "lpr_scans_lag_1h",
+      "lpr_scans_lag_2h",
+      "lpr_scans_lag_3h",
+      "lpr_scans_lag_24h",
+      "lpr_scans_lag_168h"
+    ]
+  },
+  "data_summary": {
+    "train_records": 3516665,
+    "val_records": 1212120,
+    "test_records": 137455,
+    "train_date_range": "2022-07-01 00:00:00 to 2024-08-31 00:00:00",
+    "val_date_range": "2024-08-31 01:00:00 to 2025-05-31 00:00:00",
+    "test_date_range": "2025-05-31 01:00:00 to 2025-06-30 23:00:00"
+  },
+  "hyperparameters": {
+    "objective": "regression",
+    "metric": "mae",
+    "boosting_type": "gbdt",
+    "num_leaves": 31,
+    "learning_rate": 0.05,
+    "feature_fraction": 0.8,
+    "bagging_fraction": 0.8,
+    "bagging_freq": 5,
+    "verbose": -1,
+    "random_state": 42
+  }
+}

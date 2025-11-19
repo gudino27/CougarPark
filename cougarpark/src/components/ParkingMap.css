@@ -1,0 +1,131 @@
+.parking-map-container {
+  position: relative;
+  width: 100%;
+  margin: 20px 0;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.leaflet-container {
+  font-family: inherit;
+}
+
+.custom-marker {
+  background: none;
+  border: none;
+}
+
+.marker-popup h3 {
+  margin: 0 0 10px 0;
+  color: #981e32;
+  font-size: 16px;
+}
+
+.marker-popup p {
+  margin: 5px 0;
+  font-size: 14px;
+}
+
+.select-lot-btn {
+  margin-top: 10px;
+  padding: 8px 16px;
+  background-color: #981e32;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: background-color 0.3s;
+}
+
+.select-lot-btn:hover {
+  background-color: #7a1728;
+}
+
+.map-legend {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  background: white;
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+  max-width: 200px;
+}
+
+.map-legend h4 {
+  margin: 0 0 10px 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+}
+
+.legend-items {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+}
+
+.legend-color {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid white;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.legend-note {
+  margin: 10px 0 0 0;
+  font-size: 11px;
+  color: #666;
+  font-style: italic;
+}
+
+.no-coords-message {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 400px;
+  background-color: #f5f5f5;
+  border-radius: 8px;
+  color: #666;
+}
+
+.no-coords-message p {
+  margin: 5px 0;
+  font-size: 16px;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .map-legend {
+    bottom: 10px;
+    right: 10px;
+    padding: 10px;
+    max-width: 150px;
+  }
+
+  .map-legend h4 {
+    font-size: 12px;
+  }
+
+  .legend-item {
+    font-size: 11px;
+  }
+
+  .legend-color {
+    width: 12px;
+    height: 12px;
+  }
+}

@@ -270,3 +270,4 @@
     font-size: 2.5rem;
   }
 }
+.activity-level { text-align: center; margin: 20px 0; } .activity-badge { display: inline-block; padding: 8px 24px; border-radius: 20px; color: white; font-weight: 600; font-size: 14px; } .recommendation-verdict.neutral { background-color: #f57c00; color: white; padding: 12px; border-radius: 6px; text-align: center; font-weight: 600; margin-top: 16px; }

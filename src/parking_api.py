@@ -68,12 +68,19 @@ occupancy_zone_encoder = None
 occupancy_features = None
 occupancy_metadata = None
 
+# Lot-level LPR model (NEW - for individual lot predictions)
+lot_level_lpr_model = None
+lot_level_lpr_metadata = None
+lot_level_lpr_features = None
+
 enforcement_model = None
 enforcement_features = None
 enforcement_metadata = None
 
 if OCCUPANCY_ENABLED:
-    print("Loading occupancy model...")
+    print("Loading occupancy models...")
+
+    # Load zone-level AMP occupancy model (62 lots)
     with open(f'{MODEL_DIR}/occupancy_lightgbm_tuned.pkl', 'rb') as f:
         occupancy_model = pickle.load(f)
 
@@ -85,7 +92,20 @@ if OCCUPANCY_ENABLED:
 
     with open(f'{MODEL_DIR}/occupancy_model_metadata.json', 'r') as f:
         occupancy_metadata = json.load(f)
-    print("  Occupancy model loaded successfully!")
+    print("  Zone-level occupancy model loaded (62 lots with AMP data)")
+
+    # Load lot-level LPR model (185 lots)
+    try:
+        with open(f'{MODEL_DIR}/occupancy_lot_level_lpr_model.pkl', 'rb') as f:
+            lot_level_lpr_model = pickle.load(f)
+
+        with open(f'{MODEL_DIR}/occupancy_lot_level_lpr_metadata.json', 'r') as f:
+            lot_level_lpr_metadata = json.load(f)
+            lot_level_lpr_features = lot_level_lpr_metadata['features']['feature_list']
+
+        print(f"  Lot-level LPR model loaded ({lot_level_lpr_metadata['num_lots']} lots)")
+    except FileNotFoundError:
+        print("  WARNING: Lot-level LPR model not found, only zone-level predictions available")
 
 if ENFORCEMENT_ENABLED:
     print("Loading enforcement model...")
@@ -99,36 +119,88 @@ if ENFORCEMENT_ENABLED:
         enforcement_metadata = json.load(f)
     print("  Enforcement model loaded successfully!")
 
-lot_mapping = pd.read_csv(f'{DATA_DIR}/lot_mapping_enhanced.csv')
+# Load lot mapping data (prefer version with coordinates if available)
+import os
+lot_mapping_with_coords = f'{DATA_DIR}/lot_mapping_enhanced_with_coords.csv'
+if os.path.exists(lot_mapping_with_coords):
+    lot_mapping = pd.read_csv(lot_mapping_with_coords)
+    print("  Loaded lot mapping with coordinates")
+else:
+    lot_mapping = pd.read_csv(f'{DATA_DIR}/lot_mapping_enhanced.csv')
+    print("  Loaded lot mapping (no coordinates yet)")
 
-# Build capacity dictionary from lot_mapping_enhanced.csv
-# Map alternative_location_description -> capacity for all lots
+# Build capacity dictionary and lot->AMP zone mapping from lot_mapping_enhanced.csv
 zone_capacity_dict = {}
-for _, row in lot_mapping.iterrows():
-    zone_name = row.get('alternative_location_description')
-    if pd.notna(zone_name) and pd.notna(row.get('capacity')):
-        capacity = float(row['capacity'])
-        if zone_name in zone_capacity_dict:
-            zone_capacity_dict[zone_name] += capacity
-        else:
-            zone_capacity_dict[zone_name] = capacity
+lot_to_amp_zone = {}  # Maps lot_number -> AMP zone name for occupancy predictions
+lot_capacities = {}  # Maps lot_number -> capacity
+lot_amp_coverage = {}  # Maps lot_number -> AMP coverage ratio (amp_cap / lot_cap)
 
-    # Also add Zone_Name as fallback
+# Load AMP zone capacities from occupancy data
+amp_zone_capacities = {}
+if OCCUPANCY_ENABLED:
+    occupancy_data_path = f'{DATA_DIR}/processed/occupancy_lot_level_full.csv'
+    if os.path.exists(occupancy_data_path):
+        occ_df = pd.read_csv(occupancy_data_path)
+        amp_zone_capacities = occ_df.groupby('Zone')['Max_Capacity'].first().to_dict()
+        print(f"Loaded {len(amp_zone_capacities)} AMP zone capacities from occupancy data")
+
+for _, row in lot_mapping.iterrows():
+    lot_num = int(row['Lot_number'])
+    capacity = float(row['capacity']) if pd.notna(row.get('capacity')) else 0
+
+    # Store lot capacity
+    lot_capacities[lot_num] = capacity
+
+    # Map alternative_location_description (AMP zone names) to capacity
+    zone_name = row.get('alternative_location_description')
+    if pd.notna(zone_name):
+        for name in str(zone_name).split('|'):
+            name = name.strip()
+            if name:
+                if name in zone_capacity_dict:
+                    zone_capacity_dict[name] += capacity
+                else:
+                    zone_capacity_dict[name] = capacity
+
+                # Store first AMP zone name for this lot and calculate coverage
+                if lot_num not in lot_to_amp_zone:
+                    lot_to_amp_zone[lot_num] = name
+
+                    # Calculate AMP coverage ratio
+                    amp_cap = amp_zone_capacities.get(name, 0)
+                    if capacity > 0 and amp_cap > 0:
+                        coverage_ratio = amp_cap / capacity
+                        lot_amp_coverage[lot_num] = coverage_ratio
+
+    # Also add aggregated Zone_Name -> total capacity
     zone_type = row.get('Zone_Name')
-    if pd.notna(zone_type) and pd.notna(row.get('capacity')):
-        capacity = float(row['capacity'])
+    if pd.notna(zone_type):
         if zone_type in zone_capacity_dict:
             zone_capacity_dict[zone_type] += capacity
         else:
             zone_capacity_dict[zone_type] = capacity
 
 print(f"Loaded capacities for {len(zone_capacity_dict)} zones/lots from lot_mapping_enhanced.csv")
+print(f"Mapped {len(lot_to_amp_zone)} lots to AMP zones for occupancy predictions")
+print(f"  {len([c for c in lot_amp_coverage.values() if c >= 0.8])} lots with good AMP coverage (>=80%)")
+print(f"  {len([c for c in lot_amp_coverage.values() if c < 0.8])} lots with partial AMP coverage (<80%), will use time-pattern estimates")
 
 # Load shared data files
 calendar_df = pd.read_csv(f'{DATA_DIR}/academic_calendar.csv')
 games_df = pd.read_csv(f'{DATA_DIR}/football_games.csv')
 weather_df = pd.read_csv(f'{DATA_DIR}/weather_pullman_hourly_2020_2025.csv')
 occupancy_history_2025 = pd.read_csv(f'{DATA_DIR}/processed/occupancy_history_2025.csv')
+
+# Load lot-level LPR historical data for lag features
+lpr_history = None
+if lot_level_lpr_model is not None:
+    lpr_history_path = f'{DATA_DIR}/processed/occupancy_lot_level_lpr_full.csv'
+    if os.path.exists(lpr_history_path):
+        print(f"Loading lot-level LPR history...")
+        lpr_history = pd.read_csv(lpr_history_path, parse_dates=['datetime'])
+        print(f"  LPR history loaded: {len(lpr_history):,} records ({lpr_history['lot_number'].nunique()} lots)")
+    else:
+        print(f"  WARNING: LPR history not found at {lpr_history_path}")
 
 # Initialize feature engineers based on enabled models
 feature_engineer_occupancy = None
@@ -152,10 +224,10 @@ if OCCUPANCY_ENABLED:
     print("  Occupancy feature engineer initialized!")
 
 if ENFORCEMENT_ENABLED:
-    # Load LOT-LEVEL enforcement history for enforcement predictions
-    enforcement_history_lot = pd.read_csv(f'{DATA_DIR}/processed/enforcement_lot_level_extended.csv', parse_dates=['datetime'])
-    print(f"Loaded LOT-LEVEL enforcement history: {len(enforcement_history_lot):,} records")
-    print(f"  Unique lots: {enforcement_history_lot['Lot_number'].nunique()}")
+    # Load ZONE-LEVEL enforcement history for enforcement predictions
+    enforcement_history_lot = pd.read_csv(f'{DATA_DIR}/processed/enforcement_full_extended.csv', parse_dates=['datetime'])
+    print(f"Loaded ZONE-LEVEL enforcement history: {len(enforcement_history_lot):,} records")
+    print(f"  Unique zones: {enforcement_history_lot['Zone'].nunique()}")
 
     # Create feature engineer for ENFORCEMENT predictions
     feature_engineer_enforcement = FeatureEngineer(
@@ -333,13 +405,54 @@ def predict_occupancy():
             return jsonify({'error': 'Missing required fields: zone, datetime'}), 400
 
         dt = pd.to_datetime(dt_str)
-        capacity = zone_capacity_dict.get(zone, 0)
 
-        features = feature_engineer_occupancy.create_features(zone, dt, occupancy_zone_encoder)
-        feature_array = feature_engineer_occupancy.features_to_array(features, occupancy_features)
+        # Get all lots in this zone from lot_mapping
+        zone_lots = lot_mapping[lot_mapping['Zone_Name'] == zone]
 
-        predicted_occupancy = float(occupancy_model.predict(feature_array)[0])
-        predicted_occupancy = max(0, min(predicted_occupancy, capacity))
+        if len(zone_lots) > 0:
+            # This is an aggregated zone - predict for each lot that has AMP data
+            total_predicted_occupancy = 0
+            total_capacity = 0
+
+            for _, row in zone_lots.iterrows():
+                lot_num = int(row['Lot_number'])
+                lot_capacity = lot_capacities.get(lot_num, 0)
+
+                # Check if this lot has AMP data
+                if lot_num in lot_to_amp_zone:
+                    amp_zone = lot_to_amp_zone[lot_num]
+                    try:
+                        features = feature_engineer_occupancy.create_features(amp_zone, dt, occupancy_zone_encoder)
+                        feature_array = feature_engineer_occupancy.features_to_array(features, occupancy_features)
+
+                        lot_occupancy = float(occupancy_model.predict(feature_array)[0])
+                        lot_occupancy = max(0, min(lot_occupancy, lot_capacity))
+
+                        total_predicted_occupancy += lot_occupancy
+                        total_capacity += lot_capacity
+                    except Exception as e:
+                        print(f"Warning: Could not predict for lot {lot_num} (AMP zone: {amp_zone}): {e}")
+                        # Add capacity even if prediction fails
+                        total_capacity += lot_capacity
+                else:
+                    # No AMP data for this lot, just add capacity
+                    total_capacity += lot_capacity
+
+            predicted_occupancy = total_predicted_occupancy
+            capacity = total_capacity
+        else:
+            # Not an aggregated zone - might be a specific AMP zone name
+            capacity = zone_capacity_dict.get(zone, 0)
+
+            try:
+                features = feature_engineer_occupancy.create_features(zone, dt, occupancy_zone_encoder)
+                feature_array = feature_engineer_occupancy.features_to_array(features, occupancy_features)
+                predicted_occupancy = float(occupancy_model.predict(feature_array)[0])
+                predicted_occupancy = max(0, min(predicted_occupancy, capacity))
+            except Exception as e:
+                print(f"Warning: Could not predict for zone '{zone}': {e}")
+                predicted_occupancy = 0
+
         available_spaces = max(0, capacity - predicted_occupancy)
 
         availability_level = get_availability_level(predicted_occupancy, capacity)
@@ -361,6 +474,334 @@ def predict_occupancy():
         })
         
     except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+def create_lot_level_features(lot_number, dt, lpr_history_df):
+    """
+    Create features for lot-level LPR predictions
+
+    Returns a pandas DataFrame with a single row containing all features
+    """
+    # Ensure dt is timezone-naive to match lpr_history data
+    if hasattr(dt, 'tz') and dt.tz is not None:
+        dt = dt.tz_localize(None)
+
+    # Get lot info from mapping
+    lot_info = lot_mapping[lot_mapping['Lot_number'] == lot_number]
+    if len(lot_info) == 0:
+        raise ValueError(f"Lot {lot_number} not found in mapping")
+
+    lot_info = lot_info.iloc[0]
+    zone = lot_info['Zone_Name']
+    capacity = float(lot_info['capacity']) if pd.notna(lot_info['capacity']) else 0
+
+    # Temporal features
+    hour = dt.hour
+    day_of_week = dt.dayofweek
+    month = dt.month
+    year = dt.year
+    is_weekend = 1 if day_of_week >= 5 else 0
+
+    # Calendar features from games_df and calendar_df
+    date_normalized = dt.normalize()
+
+    # Game day
+    games_df['Date'] = pd.to_datetime(games_df['Date']).dt.normalize()
+    is_game_day = 1 if date_normalized in games_df['Date'].values else 0
+
+    # Academic calendar events
+    calendar_df['Start_Date'] = pd.to_datetime(calendar_df['Start_Date']).dt.normalize()
+    calendar_df['End_Date'] = pd.to_datetime(calendar_df['End_Date']).dt.normalize()
+
+    is_dead_week = 0
+    is_finals_week = 0
+    is_spring_break = 0
+    is_thanksgiving_break = 0
+    is_winter_break = 0
+
+    for _, event in calendar_df.iterrows():
+        if event['Start_Date'] <= date_normalized <= event['End_Date']:
+            event_type = event['Event_Type']
+            if event_type == 'Dead_Week':
+                is_dead_week = 1
+            elif event_type == 'Finals_Week':
+                is_finals_week = 1
+            elif event_type == 'Spring_Break':
+                is_spring_break = 1
+            elif event_type == 'Thanksgiving_Break':
+                is_thanksgiving_break = 1
+            elif event_type == 'Winter_Break':
+                is_winter_break = 1
+
+    is_any_break = 1 if (is_spring_break or is_thanksgiving_break or is_winter_break) else 0
+
+    # Weather features
+    weather_df['date'] = pd.to_datetime(weather_df['date']).dt.normalize()
+    weather_row = weather_df[weather_df['date'] == date_normalized]
+
+    if len(weather_row) > 0:
+        weather_row = weather_row.iloc[0]
+        temp_mean_f = float(weather_row.get('temp_mean_f', 50))
+        precipitation_inches = float(weather_row.get('precipitation_inches', 0))
+        weather_category = str(weather_row.get('weather_category', 'Clear'))
+        is_rainy = int(weather_row.get('is_rainy', 0))
+        is_snowy = int(weather_row.get('is_snowy', 0))
+        is_cold = int(weather_row.get('is_cold', 0))
+        is_hot = int(weather_row.get('is_hot', 0))
+    else:
+        temp_mean_f = 50.0
+        precipitation_inches = 0.0
+        weather_category = 'Clear'
+        is_rainy = 0
+        is_snowy = 0
+        is_cold = 0
+        is_hot = 0
+
+    # Lag features - look up historical LPR scans
+    lag_offsets = [1, 2, 3, 24, 168]  # hours ago
+    lag_features = {}
+
+    for lag_hours in lag_offsets:
+        lag_dt = dt - pd.Timedelta(hours=lag_hours)
+
+        # Look up LPR scans from history
+        hist_row = lpr_history_df[
+            (lpr_history_df['lot_number'] == lot_number) &
+            (lpr_history_df['datetime'] == lag_dt)
+        ]
+
+        if len(hist_row) > 0:
+            lag_features[f'lpr_scans_lag_{lag_hours}h'] = int(hist_row.iloc[0]['lpr_scans'])
+        else:
+            lag_features[f'lpr_scans_lag_{lag_hours}h'] = 0
+
+    # Build feature dictionary
+    features = {
+        'hour': hour,
+        'day_of_week': day_of_week,
+        'month': month,
+        'year': year,
+        'is_weekend': is_weekend,
+        'lot_number': lot_number,
+        'Zone': zone,
+        'capacity': capacity,
+        'is_game_day': is_game_day,
+        'is_dead_week': is_dead_week,
+        'is_finals_week': is_finals_week,
+        'is_any_break': is_any_break,
+        'temp_mean_f': temp_mean_f,
+        'precipitation_inches': precipitation_inches,
+        'weather_category': weather_category,
+        'is_rainy': is_rainy,
+        'is_snowy': is_snowy,
+        'is_cold': is_cold,
+        'is_hot': is_hot,
+        **lag_features
+    }
+
+    # Convert to DataFrame
+    return pd.DataFrame([features])
+
+@app.route('/api/occupancy/predict-lot', methods=['POST'])
+def predict_lot_occupancy():
+    """
+    Predict parking activity (LPR scans) for a specific lot
+
+    Request body:
+    {
+        "lot_number": 9,
+        "datetime": "2024-11-15T10:30:00"  // ISO format
+    }
+    """
+    try:
+        if lot_level_lpr_model is None:
+            return jsonify({'error': 'Lot-level LPR model not available'}), 503
+
+        if lpr_history is None:
+            return jsonify({'error': 'LPR historical data not loaded'}), 503
+
+        data = request.json
+
+        lot_number = data.get('lot_number')
+        dt_str = data.get('datetime')
+
+        if lot_number is None or not dt_str:
+            return jsonify({'error': 'Missing required fields: lot_number, datetime'}), 400
+
+        lot_number = int(lot_number)
+        dt = pd.to_datetime(dt_str)
+
+        # Create features
+        features_df = create_lot_level_features(lot_number, dt, lpr_history)
+
+        # Ensure feature order matches model
+        features_df = features_df[lot_level_lpr_features]
+
+        # Convert categorical columns to category dtype
+        for col in ['Zone', 'weather_category']:
+            if col in features_df.columns and features_df[col].dtype == 'object':
+                features_df[col] = features_df[col].astype('category')
+
+        # Make prediction
+        predicted_scans = float(lot_level_lpr_model.predict(features_df)[0])
+        predicted_scans = max(0, predicted_scans)  # No negative predictions
+
+        # Get lot info
+        lot_info = lot_mapping[lot_mapping['Lot_number'] == lot_number].iloc[0]
+        zone = lot_info['Zone_Name']
+        capacity = float(lot_info['capacity']) if pd.notna(lot_info['capacity']) else 0
+        location = str(lot_info.get('location_description', '')) if pd.notna(lot_info.get('location_description')) else ''
+        alternative_location = str(lot_info.get('alternative_location_description', '')) if pd.notna(lot_info.get('alternative_location_description')) else ''
+
+        # Add occupancy prediction
+        occupancy_data = None
+        occupancy_source = None
+
+        # Try AMP-based occupancy first (for PAID lots with AMP sensors AND good coverage)
+        # Only use AMP for paid/hourly lots (Yellow zones, garages, meters) where everyone must pay
+        # For permit lots (Green, Red, Grey), AMP only tracks ~20-40% who pay, use time-pattern instead
+        amp_coverage = lot_amp_coverage.get(lot_number, 0)
+        is_paid_lot = (zone.startswith('Yellow') or 'Garage' in location or
+                      'GARAGE' in location.upper() or 'Meter' in location or
+                      'HOURLY' in location.upper())
+        use_amp = (OCCUPANCY_ENABLED and occupancy_model is not None and
+                   lot_number in lot_to_amp_zone and amp_coverage >= 0.8 and is_paid_lot)
+
+        if use_amp:
+            try:
+                # Use the specific AMP zone name for occupancy model
+                # The occupancy model was trained on 62 specific AMP zone names like "Green 1 Bustad Lot"
+                amp_zone = lot_to_amp_zone[lot_number]
+                features = feature_engineer_occupancy.create_features(amp_zone, dt, occupancy_zone_encoder)
+                feature_array = feature_engineer_occupancy.features_to_array(features, occupancy_features)
+                predicted_occupancy = float(occupancy_model.predict(feature_array)[0])
+                predicted_occupancy = max(0, min(predicted_occupancy, capacity))
+
+                available_spaces = max(0, capacity - predicted_occupancy)
+                percent_full = round((predicted_occupancy / capacity * 100), 1) if capacity > 0 else 0
+                availability_level = get_availability_level(predicted_occupancy, capacity)
+
+                occupancy_data = {
+                    'occupancy_count': round(predicted_occupancy, 1),
+                    'available_spaces': int(available_spaces),
+                    'capacity': int(capacity),
+                    'percent_full': percent_full,
+                    'availability_level': availability_level,
+                    'source': 'amp'
+                }
+                occupancy_source = 'amp'
+            except Exception as e:
+                print(f"Warning: Could not generate AMP occupancy prediction for lot {lot_number}: {e}")
+
+        # Fallback: Estimate occupancy based on typical patterns (for lots without AMP data)
+        if occupancy_data is None and capacity > 0:
+            # Estimate occupancy based on time patterns
+            # Typical university parking patterns:
+            hour = dt.hour
+            day_of_week = dt.dayofweek  # 0=Monday, 6=Sunday
+            is_weekend = day_of_week >= 5
+            month = dt.month
+
+            # Determine if semester is in session
+            # WSU academic calendar: Fall (Aug-Dec), Spring (Jan-May), Summer (Jun-Aug)
+            is_summer = month in [6, 7] or (month == 8 and dt.day < 20)
+            is_winter_break = (month == 12 and dt.day > 15) or (month == 1 and dt.day < 10)
+            is_spring_break = month == 3 and 10 <= dt.day <= 20
+            in_session = not (is_summer or is_winter_break or is_spring_break)
+
+            # Base occupancy rates by time of day and semester status
+            if not in_session:
+                # Summer/breaks: very low occupancy
+                if is_weekend:
+                    base_rate = 0.02  # 2% on weekends
+                elif 8 <= hour <= 17:
+                    base_rate = 0.05  # 5% during day
+                else:
+                    base_rate = 0.01  # 1% off hours
+            elif is_weekend:
+                # Weekends during semester: low occupancy
+                if 9 <= hour <= 17:
+                    base_rate = 0.20  # 20% during day
+                else:
+                    base_rate = 0.10  # 10% off hours
+            else:
+                # Weekdays during semester: high occupancy
+                if 8 <= hour <= 17:
+                    base_rate = 0.55  # 55% during peak hours
+                elif 7 <= hour < 8 or 17 < hour <= 19:
+                    base_rate = 0.35  # 35% shoulder hours
+                else:
+                    base_rate = 0.15  # 15% off hours
+
+            # Adjust based on zone type (permit vs paid)
+            zone_type = lot_info.get('zone_type', 'Permit')
+            if zone_type == 'Paid':
+                base_rate *= 0.8  # Paid lots typically less full
+
+            estimated_occupancy = capacity * base_rate
+
+            available_spaces = max(0, capacity - estimated_occupancy)
+            percent_full = round((estimated_occupancy / capacity * 100), 1) if capacity > 0 else 0
+            availability_level = get_availability_level(estimated_occupancy, capacity)
+
+            occupancy_data = {
+                'occupancy_count': round(estimated_occupancy, 1),
+                'available_spaces': int(available_spaces),
+                'capacity': int(capacity),
+                'percent_full': percent_full,
+                'availability_level': availability_level,
+                'source': 'time_pattern_estimate'
+            }
+            occupancy_source = 'time_pattern_estimate'
+
+        # Add enforcement prediction if enabled
+        enforcement_data = None
+        if ENFORCEMENT_ENABLED and enforcement_model is not None:
+            try:
+                features = feature_engineer_enforcement.create_features(zone, dt, occupancy_zone_encoder)
+                feature_array = feature_engineer_enforcement.features_to_array(features, enforcement_features)
+                risk_probability = float(enforcement_model.predict_proba(feature_array)[0][1])
+                risk_probability = max(0.0, min(risk_probability, 1.0))
+                risk_level = get_risk_level(risk_probability)
+
+                enforcement_data = {
+                    'probability': round(risk_probability, 4),
+                    'percentage': round(risk_probability * 100, 1),
+                    'level': risk_level,
+                    'message': enforcement_metadata['risk_messages'][risk_level]
+                }
+            except Exception as e:
+                print(f"Warning: Could not generate enforcement prediction: {e}")
+                enforcement_data = None
+
+        response = {
+            'lot_number': int(lot_number),
+            'zone': zone,
+            'location': location,
+            'alternative_location': alternative_location,
+            'datetime': dt_str,
+            'lpr_activity': {
+                'lpr_scans_predicted': round(predicted_scans, 2),
+                'activity_level': 'high' if predicted_scans > 5 else 'moderate' if predicted_scans > 1 else 'low'
+            },
+            'model_info': {
+                'model_type': lot_level_lpr_metadata['model_type'],
+                'test_mae': float(lot_level_lpr_metadata['performance']['test_mae']),
+                'num_lots': lot_level_lpr_metadata['num_lots']
+            }
+        }
+
+        if occupancy_data:
+            response['occupancy'] = occupancy_data
+
+        if enforcement_data:
+            response['enforcement'] = enforcement_data
+
+        return jsonify(response)
+
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
         return jsonify({'error': str(e)}), 500
 
 @app.route('/api/enforcement/risk', methods=['POST'])
@@ -451,7 +892,6 @@ def recommend_parking():
             return jsonify({'error': 'All models are disabled'}), 503
 
         dt = pd.to_datetime(dt_str)
-        capacity = zone_capacity_dict.get(zone, 0)
 
         # Initialize response
         response = {
@@ -468,10 +908,53 @@ def recommend_parking():
         availability_level = 'UNKNOWN'
 
         if OCCUPANCY_ENABLED:
-            features = feature_engineer_occupancy.create_features(zone, dt, occupancy_zone_encoder)
-            occupancy_feature_array = feature_engineer_occupancy.features_to_array(features, occupancy_features)
-            predicted_occupancy = float(occupancy_model.predict(occupancy_feature_array)[0])
-            predicted_occupancy = max(0, min(predicted_occupancy, capacity))
+            # Get all lots in this zone from lot_mapping
+            zone_lots = lot_mapping[lot_mapping['Zone_Name'] == zone]
+
+            if len(zone_lots) > 0:
+                # This is an aggregated zone - predict for each lot that has AMP data
+                total_predicted_occupancy = 0
+                total_capacity = 0
+
+                for _, row in zone_lots.iterrows():
+                    lot_num = int(row['Lot_number'])
+                    lot_capacity = lot_capacities.get(lot_num, 0)
+
+                    # Check if this lot has AMP data
+                    if lot_num in lot_to_amp_zone:
+                        amp_zone = lot_to_amp_zone[lot_num]
+                        try:
+                            features = feature_engineer_occupancy.create_features(amp_zone, dt, occupancy_zone_encoder)
+                            occupancy_feature_array = feature_engineer_occupancy.features_to_array(features, occupancy_features)
+
+                            lot_occupancy = float(occupancy_model.predict(occupancy_feature_array)[0])
+                            lot_occupancy = max(0, min(lot_occupancy, lot_capacity))
+
+                            total_predicted_occupancy += lot_occupancy
+                            total_capacity += lot_capacity
+                        except Exception as e:
+                            print(f"Warning: Could not predict occupancy for lot {lot_num} (AMP zone: {amp_zone}): {e}")
+                            # Add capacity even if prediction fails
+                            total_capacity += lot_capacity
+                    else:
+                        # No AMP data for this lot, just add capacity
+                        total_capacity += lot_capacity
+
+                predicted_occupancy = total_predicted_occupancy
+                capacity = total_capacity
+            else:
+                # Not an aggregated zone - might be a specific AMP zone name
+                capacity = zone_capacity_dict.get(zone, 0)
+
+                try:
+                    features = feature_engineer_occupancy.create_features(zone, dt, occupancy_zone_encoder)
+                    occupancy_feature_array = feature_engineer_occupancy.features_to_array(features, occupancy_features)
+                    predicted_occupancy = float(occupancy_model.predict(occupancy_feature_array)[0])
+                    predicted_occupancy = max(0, min(predicted_occupancy, capacity))
+                except Exception as e:
+                    print(f"Warning: Could not predict for zone '{zone}': {e}")
+                    predicted_occupancy = 0
+
             available_spaces = max(0, capacity - predicted_occupancy)
 
             availability_level = get_availability_level(predicted_occupancy, capacity)
@@ -622,13 +1105,19 @@ def list_lots():
         for _, row in lot_mapping.iterrows():
             lot_info = {
                 'lot_number': int(row['Lot_number']),
-                'zone_name': row['Zone_Name'],
-                'location': row['location_description'],
-                'zone_type': row.get('zone_type', 'Unknown')
+                'zone_name': str(row['Zone_Name']) if pd.notna(row['Zone_Name']) else 'Unknown',
+                'location': str(row['location_description']) if pd.notna(row.get('location_description')) else '',
+                'zone_type': str(row.get('zone_type', 'Unknown')) if pd.notna(row.get('zone_type')) else 'Unknown',
+                'capacity': int(row['capacity']) if pd.notna(row.get('capacity')) else 0
             }
 
             if pd.notna(row.get('alternative_location_description')):
-                lot_info['alternative_location'] = row['alternative_location_description']
+                lot_info['alternative_location'] = str(row['alternative_location_description'])
+
+            # Add coordinates if available
+            if pd.notna(row.get('latitude')) and pd.notna(row.get('longitude')):
+                lot_info['latitude'] = float(row['latitude'])
+                lot_info['longitude'] = float(row['longitude'])
 
             lots_list.append(lot_info)
 

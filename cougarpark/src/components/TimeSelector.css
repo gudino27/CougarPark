@@ -44,11 +44,11 @@
 }
 
 /* React DatePicker Styling */
-.datetime-picker-group {
+.date-picker-group {
   grid-column: 1 / -1;
 }
 
-.datetime-picker-input {
+.date-picker-input {
   width: 100%;
   padding: 10px;
   border: 1px solid #ddd;
@@ -58,10 +58,55 @@
   transition: border-color 0.2s, box-shadow 0.2s;
 }
 
-.datetime-picker-input:focus {
+.date-picker-input:focus {
   outline: none;
   border-color: #981e32;
   box-shadow: 0 0 0 2px rgba(152, 30, 50, 0.1);
+}
+
+/* Time Dropdowns */
+.time-selectors {
+  grid-column: 1 / -1;
+}
+
+.time-dropdowns {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.time-select {
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 1rem;
+  background: white;
+  cursor: pointer;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.time-select:focus {
+  outline: none;
+  border-color: #981e32;
+  box-shadow: 0 0 0 2px rgba(152, 30, 50, 0.1);
+}
+
+.hour-select {
+  width: 70px;
+}
+
+.minute-select {
+  width: 70px;
+}
+
+.period-select {
+  width: 80px;
+}
+
+.time-separator {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #5E6A71;
 }
 
 /* WSU-themed Calendar */

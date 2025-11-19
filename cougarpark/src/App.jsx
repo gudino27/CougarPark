@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import ZoneSelector from './components/ZoneSelector';
+import LotSelector from './components/LotSelector';
+import ParkingMap from './components/ParkingMap';
 import TimeSelector from './components/TimeSelector';
 import PredictionDisplay from './components/PredictionDisplay';
 import FindParkingNow from './components/FindParkingNow';
@@ -7,8 +8,7 @@ import FeedbackForm from './components/FeedbackForm';
 import './App.css';
 
 function App() {
-  const [selectedZone, setSelectedZone] = useState(null);
-  const [predictionZone, setPredictionZone] = useState(null);
+  const [selectedLot, setSelectedLot] = useState(null);
   const [selectedDateTime, setSelectedDateTime] = useState(null);
   const [parkingDuration, setParkingDuration] = useState(1);
   const [prediction, setPrediction] = useState(null);
@@ -18,6 +18,8 @@ function App() {
     occupancy: true,
     enforcement: true
   });
+  const [viewMode, setViewMode] = useState('list'); // 'map' or 'list'
+  const [lots, setLots] = useState([]);
 
   // Fetch active models status on mount
   useEffect(() => {
@@ -36,20 +38,36 @@ function App() {
     fetchStatus();
   }, []);
 
-  const fetchPrediction = async (zone, datetime, durationHours) => {
-    if (!zone || !datetime) return;
+  // Fetch parking lots data on mount
+  useEffect(() => {
+    const fetchLots = async () => {
+      try {
+        const response = await fetch('http://localhost:5000/api/lots/list');
+        if (response.ok) {
+          const data = await response.json();
+          setLots(data.lots || []);
+        }
+      } catch (err) {
+        console.error('Failed to fetch lots:', err);
+      }
+    };
+
+    fetchLots();
+  }, []);
+
+  const fetchPrediction = async (lotNumber, datetime) => {
+    if (!lotNumber || !datetime) return;
 
     setLoading(true);
     setError(null);
 
     try {
-      const response = await fetch('http://localhost:5000/api/parking/recommend', {
+      const response = await fetch('http://localhost:5000/api/occupancy/predict-lot', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          zone,
-          datetime,
-          duration_hours: durationHours || parkingDuration
+          lot_number: lotNumber,
+          datetime
         })
       });
 
@@ -66,32 +84,28 @@ function App() {
     }
   };
 
-  const handleZoneChange = (zone, lotInfo) => {
-    const zoneForPrediction = lotInfo?.alternative_location || zone;
-    setSelectedZone(zone);
-    setPredictionZone(zoneForPrediction);
-    if (zoneForPrediction && selectedDateTime) {
-      fetchPrediction(zoneForPrediction, selectedDateTime, parkingDuration);
+  const handleLotChange = (lotNumber, lotInfo) => {
+    setSelectedLot(lotNumber);
+    if (lotNumber && selectedDateTime) {
+      fetchPrediction(lotNumber, selectedDateTime);
     }
   };
 
   const handleDateTimeChange = (datetime) => {
     setSelectedDateTime(datetime);
-    if (predictionZone && datetime) {
-      fetchPrediction(predictionZone, datetime, parkingDuration);
+    if (selectedLot && datetime) {
+      fetchPrediction(selectedLot, datetime);
     }
   };
 
   const handleDurationChange = (duration) => {
     setParkingDuration(duration);
-    if (predictionZone && selectedDateTime) {
-      fetchPrediction(predictionZone, selectedDateTime, duration);
-    }
+    // Duration not used for lot-level predictions yet
   };
 
   const handleGetPrediction = () => {
-    if (predictionZone && selectedDateTime) {
-      fetchPrediction(predictionZone, selectedDateTime, parkingDuration);
+    if (selectedLot && selectedDateTime) {
+      fetchPrediction(selectedLot, selectedDateTime);
     }
   };
 
@@ -103,25 +117,38 @@ function App() {
     setError(null);
 
     try {
-      const zonesResponse = await fetch('http://localhost:5000/api/zones/list');
-      const zonesData = await zonesResponse.json();
+      const lotsResponse = await fetch('http://localhost:5000/api/lots/list');
+      const lotsData = await lotsResponse.json();
 
+      // Get predictions for first 20 lots (sample)
+      const sampleLots = lotsData.lots.slice(0, 20);
       const predictions = await Promise.all(
-        zonesData.zones.slice(0, 10).map(async (zone) => {
-          const response = await fetch('http://localhost:5000/api/parking/recommend', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ zone: zone.name, datetime })
-          });
-          return response.json();
+        sampleLots.map(async (lot) => {
+          try {
+            const response = await fetch('http://localhost:5000/api/occupancy/predict-lot', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ lot_number: lot.lot_number, datetime })
+            });
+            const data = await response.json();
+            return { ...data, lot_info: lot };
+          } catch (err) {
+            return null;
+          }
         })
       );
 
-      const bestZone = predictions.sort((a, b) => b.recommendation.score - a.recommendation.score)[0];
+      // Filter out failed predictions and sort by activity level (prefer low activity)
+      const validPredictions = predictions.filter(p => p !== null);
+      const bestLot = validPredictions.sort((a, b) =>
+        a.prediction.lpr_scans_predicted - b.prediction.lpr_scans_predicted
+      )[0];
 
-      setSelectedZone(bestZone.zone);
-      setSelectedDateTime(datetime);
-      setPrediction(bestZone);
+      if (bestLot) {
+        setSelectedLot(bestLot.lot_number);
+        setSelectedDateTime(datetime);
+        setPrediction(bestLot);
+      }
     } catch (err) {
       setError('Failed to find best parking');
     } finally {
@@ -141,10 +168,35 @@ function App() {
 
         <div className="app-grid">
           <div className="left-panel">
-            <ZoneSelector
-              selectedZone={selectedZone}
-              onZoneChange={handleZoneChange}
-            />
+            {/* View Mode Toggle */}
+            <div className="view-toggle">
+              <button
+                className={`toggle-btn ${viewMode === 'map' ? 'active' : ''}`}
+                onClick={() => setViewMode('map')}
+              >
+                Map View
+              </button>
+              <button
+                className={`toggle-btn ${viewMode === 'list' ? 'active' : ''}`}
+                onClick={() => setViewMode('list')}
+              >
+                List View
+              </button>
+            </div>
+
+            {viewMode === 'map' ? (
+              <ParkingMap
+                lots={lots}
+                onLotSelect={handleLotChange}
+                selectedLot={selectedLot}
+                predictions={prediction}
+              />
+            ) : (
+              <LotSelector
+                selectedLot={selectedLot}
+                onLotChange={handleLotChange}
+              />
+            )}
 
             <TimeSelector
               selectedDateTime={selectedDateTime}
@@ -152,7 +204,7 @@ function App() {
               onDurationChange={handleDurationChange}
             />
 
-            {predictionZone && selectedDateTime && (
+            {selectedLot && selectedDateTime && (
               <button className="predict-button" onClick={handleGetPrediction}>
                 Get Prediction
               </button>

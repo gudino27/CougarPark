@@ -26,9 +26,9 @@ class FeatureEngineer:
         else:
             self.enforcement_lookup_col = None
 
-        self.calendar['Start_Date'] = pd.to_datetime(self.calendar['Start_Date'])
-        self.calendar['End_Date'] = pd.to_datetime(self.calendar['End_Date'])
-        self.games['Date'] = pd.to_datetime(self.games['Date'])
+        self.calendar['Start_Date'] = pd.to_datetime(self.calendar['Start_Date']).dt.normalize()
+        self.calendar['End_Date'] = pd.to_datetime(self.calendar['End_Date']).dt.normalize()
+        self.games['Date'] = pd.to_datetime(self.games['Date']).dt.normalize()
 
         if 'date' in self.weather.columns:
             self.weather['date'] = pd.to_datetime(self.weather['date'])
@@ -39,6 +39,10 @@ class FeatureEngineer:
         """Create feature vector for prediction"""
         if isinstance(dt, str):
             dt = pd.to_datetime(dt)
+
+        # Remove timezone info to avoid tz-naive vs tz-aware comparison issues
+        if dt.tz is not None:
+            dt = dt.tz_localize(None)
 
         features = {}
 
@@ -71,15 +75,16 @@ class FeatureEngineer:
         }
         features['time_of_day_code'] = time_of_day_map[time_of_day]
 
-        date_only = dt.date()
-        features['is_game_day'] = int(date_only in self.games['Date'].dt.date.values)
+        # Normalize datetime to midnight for date comparisons
+        date_normalized = pd.Timestamp(dt).normalize()
+        features['is_game_day'] = int(date_normalized in self.games['Date'].values)
 
         for event_type in ['Dead_Week', 'Finals_Week', 'Spring_Break',
                           'Thanksgiving_Break', 'Winter_Break']:
             event_periods = self.calendar[self.calendar['Event_Type'] == event_type]
             is_in_period = False
             for _, period in event_periods.iterrows():
-                if period['Start_Date'].date() <= date_only <= period['End_Date'].date():
+                if period['Start_Date'] <= date_normalized <= period['End_Date']:
                     is_in_period = True
                     break
             features[f'is_{event_type.lower()}'] = int(is_in_period)
@@ -90,7 +95,9 @@ class FeatureEngineer:
             features['is_winter_break']
         )
 
-        weather_row = self.weather[self.weather['date'] == date_only]
+        # Get date for weather lookup
+        date_for_weather = date_normalized.date()
+        weather_row = self.weather[self.weather['date'] == date_for_weather]
         if len(weather_row) > 0:
             weather_row = weather_row.iloc[0]
             features['temp_mean_f'] = weather_row.get('temp_mean_f', 50.0)
