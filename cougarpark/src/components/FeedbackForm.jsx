@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { API_URL } from '../config';
 import './FeedbackForm.css';
 
 export default function FeedbackForm({ prediction, onFeedbackSubmitted }) {
@@ -31,7 +32,7 @@ export default function FeedbackForm({ prediction, onFeedbackSubmitted }) {
     };
 
     try {
-      const response = await fetch('http://localhost:5000/api/feedback/submit', {
+      const response = await fetch(`${API_URL}/api/feedback/submit`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(feedbackData)

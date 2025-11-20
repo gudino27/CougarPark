@@ -14,7 +14,12 @@ sys.path.insert(0, os.path.dirname(__file__))
 from feature_engineering import FeatureEngineer
 
 app = Flask(__name__)
-CORS(app)
+# Configure CORS for both local development and GitHub Pages deployment
+CORS(app, origins=[
+    "http://localhost:5173",  # Vite dev server
+    "http://localhost:3000",  # Alternative local port
+    "https://gudino27.github.io"  # GitHub Pages
+])
 
 # Get paths relative to project root
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -649,6 +654,12 @@ def predict_lot_occupancy():
         # Get lot info
         lot_info = lot_mapping[lot_mapping['Lot_number'] == lot_number].iloc[0]
         zone = lot_info['Zone_Name']
+        zone_type = str(lot_info.get('zone_type', '')) if pd.notna(lot_info.get('zone_type')) else ''
+
+        # Check if lot is restricted (University Vehicles, ADA, Guest Pass, etc.)
+        if 'University' in zone_type or 'ADA' in zone_type or 'Guest' in zone_type:
+            return jsonify({'error': f'Lot {lot_number} is restricted to {zone_type}'}), 403
+
         capacity = float(lot_info['capacity']) if pd.notna(lot_info['capacity']) else 0
         location = str(lot_info.get('location_description', '')) if pd.notna(lot_info.get('location_description')) else ''
         alternative_location = str(lot_info.get('alternative_location_description', '')) if pd.notna(lot_info.get('alternative_location_description')) else ''
@@ -1099,15 +1110,21 @@ def list_zones():
 
 @app.route('/api/lots/list')
 def list_lots():
-    """List all available parking lots"""
+    """List all available parking lots (excluding Business and Authorized lots)"""
     try:
         lots_list = []
         for _, row in lot_mapping.iterrows():
+            zone_type = str(row.get('zone_type', 'Unknown')) if pd.notna(row.get('zone_type')) else 'Unknown'
+
+            # Skip restricted lots (University Vehicles, ADA, Guest Pass, etc.)
+            if 'University' in zone_type or 'ADA' in zone_type or 'Guest' in zone_type:
+                continue
+
             lot_info = {
                 'lot_number': int(row['Lot_number']),
                 'zone_name': str(row['Zone_Name']) if pd.notna(row['Zone_Name']) else 'Unknown',
                 'location': str(row['location_description']) if pd.notna(row.get('location_description')) else '',
-                'zone_type': str(row.get('zone_type', 'Unknown')) if pd.notna(row.get('zone_type')) else 'Unknown',
+                'zone_type': zone_type,
                 'capacity': int(row['capacity']) if pd.notna(row.get('capacity')) else 0
             }
 

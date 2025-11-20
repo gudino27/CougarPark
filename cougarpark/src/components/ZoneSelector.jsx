@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { API_URL } from '../config';
 import './ZoneSelector.css';
 
 export default function ZoneSelector({ selectedZone, onZoneChange }) {
@@ -13,7 +14,7 @@ export default function ZoneSelector({ selectedZone, onZoneChange }) {
 
   const fetchLots = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/lots/list');
+      const response = await fetch(`${API_URL}/api/lots/list`);
       const data = await response.json();
       setLots(data.lots);
       setLoading(false);

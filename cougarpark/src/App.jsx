@@ -5,6 +5,7 @@ import TimeSelector from './components/TimeSelector';
 import PredictionDisplay from './components/PredictionDisplay';
 import FindParkingNow from './components/FindParkingNow';
 import FeedbackForm from './components/FeedbackForm';
+import { API_URL } from './config';
 import './App.css';
 
 function App() {
@@ -25,7 +26,7 @@ function App() {
   useEffect(() => {
     const fetchStatus = async () => {
       try {
-        const response = await fetch('http://localhost:5000/api/status');
+        const response = await fetch(`${API_URL}/api/status`);
         if (response.ok) {
           const data = await response.json();
           setActiveModels(data.active_models);
@@ -42,7 +43,7 @@ function App() {
   useEffect(() => {
     const fetchLots = async () => {
       try {
-        const response = await fetch('http://localhost:5000/api/lots/list');
+        const response = await fetch(`${API_URL}/api/lots/list`);
         if (response.ok) {
           const data = await response.json();
           setLots(data.lots || []);
@@ -62,7 +63,7 @@ function App() {
     setError(null);
 
     try {
-      const response = await fetch('http://localhost:5000/api/occupancy/predict-lot', {
+      const response = await fetch(`${API_URL}/api/occupancy/predict-lot`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -125,7 +126,7 @@ function App() {
       const predictions = await Promise.all(
         sampleLots.map(async (lot) => {
           try {
-            const response = await fetch('http://localhost:5000/api/occupancy/predict-lot', {
+            const response = await fetch(`${API_URL}/api/occupancy/predict-lot`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ lot_number: lot.lot_number, datetime })

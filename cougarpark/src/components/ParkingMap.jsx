@@ -63,24 +63,27 @@ function MapUpdater({ center }) {
   const map = useMap();
   useEffect(() => {
     if (center) {
-      map.setView(center, 15, { animate: true });
+      map.setView(center, 17, { animate: true });  // Zoom level 17 for closer view
     }
   }, [center, map]);
   return null;
 }
 
-// Component to fit all markers in view on initial load
+// Component to fit all markers in view on initial load ONLY
 function FitBounds({ lots }) {
   const map = useMap();
+  const [hasRun, setHasRun] = useState(false);
 
   useEffect(() => {
-    if (lots.length > 0) {
+    // Only run once on initial load
+    if (lots.length > 0 && !hasRun) {
       const bounds = L.latLngBounds(
         lots.map(lot => [lot.latitude, lot.longitude])
       );
       map.fitBounds(bounds, { padding: [50, 50] });
+      setHasRun(true);
     }
-  }, [lots, map]);
+  }, [lots, map, hasRun]);
 
   return null;
 }

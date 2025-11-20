@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { API_URL } from '../config';
 import './LotSelector.css';
 
 export default function LotSelector({ onLotChange, selectedLot }) {
@@ -9,7 +10,7 @@ export default function LotSelector({ onLotChange, selectedLot }) {
   useEffect(() => {
     const fetchLots = async () => {
       try {
-        const response = await fetch('http://localhost:5000/api/lots/list');
+        const response = await fetch(`${API_URL}/api/lots/list`);
         const data = await response.json();
 
         // Sort lots by number
