@@ -213,7 +213,12 @@ __marimo__/
 #processed data
 data/processed/*
 notebooks/README.md
-models/*.pkl
+# Exclude large/unused models only
+models/occupancy_random_forest.pkl
+models/occupancy_xgboost_tuned.pkl
+models/occupancy_xgboost.pkl
+models/feature_list.pkl
+models/zone_encoder.pkl
 src/__pycache__/*
 README.md
 ssh-server.bat
