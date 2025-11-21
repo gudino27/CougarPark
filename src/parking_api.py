@@ -625,7 +625,8 @@ def predict_lot_occupancy():
     Request body:
     {
         "lot_number": 9,
-        "datetime": "2024-11-15T10:30:00"  // ISO format
+        "datetime": "2024-11-15T10:30:00",  // ISO format
+        "parking_duration_hours": 3  // Optional, defaults to 1
     }
     """
     try:
@@ -639,6 +640,7 @@ def predict_lot_occupancy():
 
         lot_number = data.get('lot_number')
         dt_str = data.get('datetime')
+        parking_duration_hours = data.get('parking_duration_hours', 1)
 
         if lot_number is None or not dt_str:
             return jsonify({'error': 'Missing required fields: lot_number, datetime'}), 400
@@ -776,20 +778,44 @@ def predict_lot_occupancy():
             occupancy_source = 'time_pattern_estimate'
 
         # Add enforcement prediction if enabled
+        # Calculate cumulative risk: probability of getting a ticket at least once during parking duration
         enforcement_data = None
         if ENFORCEMENT_ENABLED and enforcement_model is not None:
             try:
-                features = feature_engineer_enforcement.create_features(zone, dt, occupancy_zone_encoder)
-                feature_array = feature_engineer_enforcement.features_to_array(features, enforcement_features)
-                risk_probability = float(enforcement_model.predict_proba(feature_array)[0][1])
-                risk_probability = max(0.0, min(risk_probability, 1.0))
-                risk_level = get_risk_level(risk_probability)
+                # Calculate probability of NO ticket in each hour, then get inverse
+                probability_no_ticket = 1.0
+                max_hourly_risk = 0.0
+                max_risk_hour = dt
+
+                # Check enforcement risk for each hour during parking duration
+                for hour_offset in range(int(parking_duration_hours)):
+                    current_time = dt + pd.Timedelta(hours=hour_offset)
+                    features = feature_engineer_enforcement.create_features(zone, current_time, occupancy_zone_encoder)
+                    feature_array = feature_engineer_enforcement.features_to_array(features, enforcement_features)
+                    hourly_risk = float(enforcement_model.predict_proba(feature_array)[0][1])
+                    hourly_risk = max(0.0, min(hourly_risk, 1.0))
+
+                    # Track highest single-hour risk for display
+                    if hourly_risk > max_hourly_risk:
+                        max_hourly_risk = hourly_risk
+                        max_risk_hour = current_time
+
+                    # Multiply probability of no ticket: P(no ticket all hours) = (1-p1)*(1-p2)*...
+                    probability_no_ticket *= (1.0 - hourly_risk)
+
+                # Cumulative risk: P(at least one ticket) = 1 - P(no tickets at all)
+                cumulative_risk = 1.0 - probability_no_ticket
+                cumulative_risk = max(0.0, min(cumulative_risk, 1.0))
+
+                risk_level = get_risk_level(cumulative_risk)
 
                 enforcement_data = {
-                    'probability': round(risk_probability, 4),
-                    'percentage': round(risk_probability * 100, 1),
+                    'probability': round(cumulative_risk, 4),
+                    'percentage': round(cumulative_risk * 100, 1),
                     'level': risk_level,
-                    'message': enforcement_metadata['risk_messages'][risk_level]
+                    'message': enforcement_metadata['risk_messages'][risk_level],
+                    'peak_risk_time': max_risk_hour.strftime('%I:%M %p'),
+                    'parking_duration_hours': int(parking_duration_hours)
                 }
             except Exception as e:
                 print(f"Warning: Could not generate enforcement prediction: {e}")

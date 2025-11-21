@@ -68,7 +68,8 @@ function App() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           lot_number: lotNumber,
-          datetime
+          datetime,
+          parking_duration_hours: parkingDuration
         })
       });
 

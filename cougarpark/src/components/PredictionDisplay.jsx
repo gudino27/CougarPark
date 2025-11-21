@@ -148,6 +148,9 @@ export default function PredictionDisplay({ prediction, loading, error, activeMo
               </div>
 
               <p className="risk-message">{enforcement.message}</p>
+              {enforcement.peak_risk_time && (
+                <p className="peak-risk-time">Peak risk at: {enforcement.peak_risk_time}</p>
+              )}
             </div>
           )}
         </div>

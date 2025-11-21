@@ -181,6 +181,14 @@
   margin: 15px 0 0 0;
 }
 
+.peak-risk-time {
+  text-align: center;
+  color: #981e32;
+  font-weight: 600;
+  margin: 8px 0 0 0;
+  font-size: 0.9rem;
+}
+
 .recommendation-card {
   background: #f8f9fa;
   padding: 20px;
