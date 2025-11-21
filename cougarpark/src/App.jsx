@@ -118,7 +118,7 @@ function App() {
     setError(null);
 
     try {
-      const lotsResponse = await fetch('http://localhost:5000/api/lots/list');
+      const lotsResponse = await fetch('https://ec2-44-243-206-53.us-west-2.compute.amazonaws.com/api/lots/list');
       const lotsData = await lotsResponse.json();
 
       // Get predictions for first 20 lots (sample)

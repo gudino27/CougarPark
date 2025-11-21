@@ -18,7 +18,8 @@ app = Flask(__name__)
 CORS(app, origins=[
     "http://localhost:5173",  # Vite dev server
     "http://localhost:3000",  # Alternative local port
-    "https://gudino27.github.io"  # GitHub Pages
+    "https://gudino27.github.io",  # GitHub Pages
+    "https://cougarpark.gudinocustom.com"  # Production domain
 ])
 
 # Get paths relative to project root
@@ -197,13 +198,22 @@ weather_df = pd.read_csv(f'{DATA_DIR}/weather_pullman_hourly_2020_2025.csv')
 occupancy_history_2025 = pd.read_csv(f'{DATA_DIR}/processed/occupancy_history_2025.csv')
 
 # Load lot-level LPR historical data for lag features
+# MEMORY OPTIMIZATION: Only load last 60 days of data (sufficient for 168h lag features)
 lpr_history = None
 if lot_level_lpr_model is not None:
     lpr_history_path = f'{DATA_DIR}/processed/occupancy_lot_level_lpr_full.csv'
     if os.path.exists(lpr_history_path):
-        print(f"Loading lot-level LPR history...")
-        lpr_history = pd.read_csv(lpr_history_path, parse_dates=['datetime'])
-        print(f"  LPR history loaded: {len(lpr_history):,} records ({lpr_history['lot_number'].nunique()} lots)")
+        print(f"Loading lot-level LPR history (last 60 days only)...")
+        # Only load recent data to reduce memory usage
+        lpr_history = pd.read_csv(
+            lpr_history_path,
+            parse_dates=['datetime'],
+            usecols=['lot_number', 'datetime', 'lpr_scans', 'date', 'hour']  # Only needed columns
+        )
+        # Filter to last 60 days
+        cutoff_date = pd.Timestamp.now() - pd.Timedelta(days=60)
+        lpr_history = lpr_history[lpr_history['datetime'] >= cutoff_date].copy()
+        print(f"  LPR history loaded: {len(lpr_history):,} records ({lpr_history['lot_number'].nunique()} lots, last 60 days)")
     else:
         print(f"  WARNING: LPR history not found at {lpr_history_path}")
 

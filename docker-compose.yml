@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  cougarpark-api:
+    build: .
+    container_name: cougarpark-api
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./data:/app/data
+      - ./models:/app/models
+    environment:
+      - FLASK_ENV=production
+    networks:
+      - cougarpark-network
+
+networks:
+  cougarpark-network:
+    driver: bridge

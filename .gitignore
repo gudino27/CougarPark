@@ -222,3 +222,4 @@ models/zone_encoder.pkl
 src/__pycache__/*
 README.md
 ssh-server.bat
+cougarpark/.env.production
