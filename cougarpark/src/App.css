@@ -135,6 +135,10 @@
 }
 
 @media (max-width: 768px) {
+  .app-header {
+    padding: 20px 15px;
+  }
+
   .app-header h1 {
     font-size: 2rem;
   }
@@ -145,5 +149,46 @@
 
   .app-main {
     padding: 10px;
+  }
+
+  .app-grid {
+    gap: 15px;
+  }
+
+  .view-toggle {
+    padding: 8px;
+  }
+
+  .toggle-btn {
+    padding: 10px 15px;
+    font-size: 0.95rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .app-header {
+    padding: 15px 10px;
+  }
+
+  .app-header h1 {
+    font-size: 1.5rem;
+  }
+
+  .app-header p {
+    font-size: 0.9rem;
+  }
+
+  .app-main {
+    padding: 8px;
+  }
+
+  .toggle-btn {
+    padding: 8px 12px;
+    font-size: 0.85rem;
+  }
+
+  .predict-button {
+    padding: 12px;
+    font-size: 1rem;
   }
 }

@@ -33,6 +33,17 @@ export default function PredictionDisplay({ prediction, loading, error, activeMo
   if (isLotLevel) {
     const { location, alternative_location, datetime, occupancy, enforcement } = prediction;
 
+    // Round up to whole numbers (no half cars)
+    if (occupancy) {
+      occupancy.available_spaces = Math.ceil(occupancy.available_spaces);
+      occupancy.occupancy_count = Math.ceil(occupancy.occupancy_count);
+      // Recalculate percentage based on rounded occupancy count
+      occupancy.percent_full = Math.round((occupancy.occupancy_count / occupancy.capacity) * 100);
+    }
+    if (enforcement) {
+      enforcement.percentage = Math.ceil(enforcement.percentage);
+    }
+
     const getRiskColor = (level) => {
       const colors = {
         'VERY_LOW': '#2e7d32',
@@ -71,6 +82,9 @@ export default function PredictionDisplay({ prediction, loading, error, activeMo
             minute: '2-digit',
             hour12: true
           })}</p>
+          <div className="disclaimer">
+            ⚠️ Use at your own risk - predictions may not be accurate
+          </div>
         </div>
 
         <div className="prediction-cards">

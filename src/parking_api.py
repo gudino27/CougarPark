@@ -1146,6 +1146,10 @@ def list_lots():
                 lot_info['latitude'] = float(row['latitude'])
                 lot_info['longitude'] = float(row['longitude'])
 
+            # Add additional coordinates if available (for split lots)
+            if pd.notna(row.get('additional_coords')):
+                lot_info['additional_coords'] = str(row['additional_coords'])
+
             lots_list.append(lot_info)
 
         return jsonify({
@@ -1327,4 +1331,4 @@ if __name__ == '__main__':
     print("API Status: http://localhost:5000/api/status")
     print("="*80 + "\n")
 
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    app.run(debug=False, host='0.0.0.0', port=5000)

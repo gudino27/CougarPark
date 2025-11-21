@@ -40,21 +40,30 @@ const ZONE_COLORS = {
   'default': '#3498DB'
 };
 
-// Create custom marker icon with color
-const createColoredIcon = (color) => {
+// Create custom marker icon with color and lot number
+const createColoredIcon = (color, lotNumber) => {
   return L.divIcon({
     className: 'custom-marker',
-    html: `<div style="
-      background-color: ${color};
-      width: 20px;
-      height: 20px;
-      border-radius: 50%;
-      border: 2px solid white;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.3);
-    "></div>`,
-    iconSize: [20, 20],
-    iconAnchor: [10, 10],
-    popupAnchor: [0, -10]
+    html: `
+      <div style="
+        background-color: ${color};
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        border: 2px solid white;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 11px;
+        font-weight: bold;
+        text-shadow: 0 0 3px rgba(0,0,0,0.8);
+      ">${lotNumber}</div>
+    `,
+    iconSize: [28, 28],
+    iconAnchor: [14, 14],
+    popupAnchor: [0, -14]
   });
 };
 
@@ -63,7 +72,7 @@ function MapUpdater({ center }) {
   const map = useMap();
   useEffect(() => {
     if (center) {
-      map.setView(center, 17, { animate: true });  // Zoom level 17 for closer view
+      map.setView(center, 15, { animate: true });  // Zoom level 17 for closer view
     }
   }, [center, map]);
   return null;
@@ -140,9 +149,17 @@ function ParkingMap({ lots, onLotSelect, selectedZone, predictions }) {
         style={{ height: '700px', width: '100%' }}
         scrollWheelZoom={true}
       >
+        {/* Google Maps Satellite imagery */}
         <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          attribution='&copy; Google Maps'
+          url={`https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}&key=${import.meta.env.VITE_GOOGLE_MAPS_API_KEY || ''}`}
+          maxZoom={20}
+        />
+        {/* Google Maps hybrid labels overlay */}
+        <TileLayer
+          attribution='&copy; Google Maps'
+          url={`https://mt1.google.com/vt/lyrs=h&x={x}&y={y}&z={z}&key=${import.meta.env.VITE_GOOGLE_MAPS_API_KEY || ''}`}
+          maxZoom={20}
         />
 
         <MapUpdater center={mapCenter} />
@@ -150,7 +167,7 @@ function ParkingMap({ lots, onLotSelect, selectedZone, predictions }) {
 
         {lotsWithCoords.map((lot) => {
           const color = ZONE_COLORS[lot.zone_name] || ZONE_COLORS['default'];
-          const icon = createColoredIcon(color);
+          const icon = createColoredIcon(color, lot.lot_number);
 
           // Check if this lot has predictions
           let occupancyText = '';
@@ -162,10 +179,24 @@ function ParkingMap({ lots, onLotSelect, selectedZone, predictions }) {
             }
           }
 
-          return (
+          // Parse additional coordinates for split lots
+          const coords = [[lot.latitude, lot.longitude]];
+          if (lot.additional_coords) {
+            // Format: "lat1,lon1;lat2,lon2;lat3,lon3"
+            const additionalPairs = lot.additional_coords.split(';');
+            additionalPairs.forEach(pair => {
+              const [lat, lon] = pair.trim().split(',').map(Number);
+              if (!isNaN(lat) && !isNaN(lon)) {
+                coords.push([lat, lon]);
+              }
+            });
+          }
+
+          // Create markers for all coordinate pairs
+          return coords.map((position, index) => (
             <Marker
-              key={`lot-${lot.lot_number}`}
-              position={[lot.latitude, lot.longitude]}
+              key={`lot-${lot.lot_number}-${index}`}
+              position={position}
               icon={icon}
               eventHandlers={{
                 click: () => handleMarkerClick(lot)
@@ -187,7 +218,7 @@ function ParkingMap({ lots, onLotSelect, selectedZone, predictions }) {
                 </div>
               </Popup>
             </Marker>
-          );
+          ));
         })}
       </MapContainer>
 

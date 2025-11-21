@@ -118,13 +118,23 @@ function App() {
     setError(null);
 
     try {
-      const lotsResponse = await fetch('https://ec2-44-243-206-53.us-west-2.compute.amazonaws.com/api/lots/list');
+      const lotsResponse = await fetch(`${API_URL}/api/lots/list`);
       const lotsData = await lotsResponse.json();
 
-      // Get predictions for first 20 lots (sample)
-      const sampleLots = lotsData.lots.slice(0, 20);
+      // Filter out apartment, authorized, and disability lots
+      const filteredLots = lotsData.lots.filter(lot => {
+        if (!lot.zone_name && !lot.zone_type) return true;
+        const zoneName = (lot.zone_name || '').toLowerCase();
+        const zoneType = (lot.zone_type || '').toLowerCase();
+        return !zoneName.includes('apartment') &&
+               !zoneName.includes('authorized') &&
+               !zoneName.includes('disability') &&
+               !zoneType.includes('ada');
+      });
+
+      // Get predictions for all non-apartment lots
       const predictions = await Promise.all(
-        sampleLots.map(async (lot) => {
+        filteredLots.map(async (lot) => {
           try {
             const response = await fetch(`${API_URL}/api/occupancy/predict-lot`, {
               method: 'POST',
@@ -139,19 +149,30 @@ function App() {
         })
       );
 
-      // Filter out failed predictions and sort by activity level (prefer low activity)
-      const validPredictions = predictions.filter(p => p !== null);
-      const bestLot = validPredictions.sort((a, b) =>
-        a.prediction.lpr_scans_predicted - b.prediction.lpr_scans_predicted
-      )[0];
+      // Filter valid predictions with occupancy data and sort by most available spaces
+      const validPredictions = predictions.filter(p =>
+        p !== null && p.occupancy && p.occupancy.available_spaces > 0
+      );
+
+      // Sort by: 1) Most available spaces, 2) Lowest enforcement risk
+      const bestLot = validPredictions.sort((a, b) => {
+        const spaceDiff = b.occupancy.available_spaces - a.occupancy.available_spaces;
+        if (spaceDiff !== 0) return spaceDiff;
+        // If same available spaces, prefer lower enforcement risk
+        const aRisk = a.enforcement ? a.enforcement.percentage : 0;
+        const bRisk = b.enforcement ? b.enforcement.percentage : 0;
+        return aRisk - bRisk;
+      })[0];
 
       if (bestLot) {
         setSelectedLot(bestLot.lot_number);
         setSelectedDateTime(datetime);
         setPrediction(bestLot);
+      } else {
+        setError('No parking available at this time');
       }
     } catch (err) {
-      setError('Failed to find best parking');
+      setError('Failed to find best parking: ' + err.message);
     } finally {
       setLoading(false);
     }
