@@ -89,6 +89,73 @@ Year,Semester,Event_Type,Start_Date,End_Date,Description
 2025,Fall,University_Holiday,2025-08-30,2025-09-01,Labor Day (Saturday-Monday 3-day weekend)
 2025,Fall,University_Holiday,2025-11-11,2025-11-11,Veterans Day (Tuesday)
 2025,Fall,Thanksgiving_Break,2025-11-22,2025-11-30,Thanksgiving week (Saturday before through Sunday after)
-2025,Fall,Dead_Week,2025-12-08,2025-12-12,Dead Week before Fall finals (Monday-Friday)
-2025,Fall,Finals_Week,2025-12-15,2025-12-19,Fall finals week
+2025,Fall,Dead_Week,2025-12-01,2025-12-07,Dead Week before Fall finals (Monday-Sunday)
+2025,Fall,Finals_Week,2025-12-08,2025-12-12,Fall finals week
 2025,Fall,Winter_Break,2025-12-20,2026-01-11,Winter break between semesters
+2026,Fall,Semester,2026-08-24,2026-12-18,Fall semester
+2026,Fall,Week_Of_Welcome,2026-08-17,2026-08-23,Week of Welcome (move-in week before Fall semester)
+2026,Fall,University_Holiday,2026-09-05,2026-09-07,Labor Day weekend
+2026,Fall,University_Holiday,2026-11-11,2026-11-11,Veterans Day
+2026,Fall,Thanksgiving_Break,2026-11-21,2026-11-29,Thanksgiving week
+2026,Fall,Dead_Week,2026-12-07,2026-12-13,Dead Week before Fall finals
+2026,Fall,Finals_Week,2026-12-14,2026-12-18,Fall finals week
+2026,Fall,Winter_Break,2026-12-19,2027-01-10,Winter break between semesters
+2027,Fall,Semester,2027-08-23,2027-12-17,Fall semester
+2027,Fall,Week_Of_Welcome,2027-08-16,2027-08-22,Week of Welcome (move-in week before Fall semester)
+2027,Fall,University_Holiday,2027-09-05,2027-09-07,Labor Day weekend
+2027,Fall,University_Holiday,2027-11-11,2027-11-11,Veterans Day
+2027,Fall,Thanksgiving_Break,2027-11-20,2027-11-28,Thanksgiving week
+2027,Fall,Dead_Week,2027-12-06,2027-12-12,Dead Week before Fall finals
+2027,Fall,Finals_Week,2027-12-13,2027-12-17,Fall finals week
+2027,Fall,Winter_Break,2027-12-18,2028-01-10,Winter break between semesters
+2028,Fall,Semester,2028-08-21,2028-12-15,Fall semester
+2028,Fall,Week_Of_Welcome,2028-08-14,2028-08-20,Week of Welcome (move-in week before Fall semester)
+2028,Fall,University_Holiday,2028-09-05,2028-09-07,Labor Day weekend
+2028,Fall,University_Holiday,2028-11-11,2028-11-11,Veterans Day
+2028,Fall,Thanksgiving_Break,2028-11-18,2028-11-26,Thanksgiving week
+2028,Fall,Dead_Week,2028-12-04,2028-12-10,Dead Week before Fall finals
+2028,Fall,Finals_Week,2028-12-11,2028-12-15,Fall finals week
+2028,Fall,Winter_Break,2028-12-16,2029-01-10,Winter break between semesters
+2029,Fall,Semester,2029-08-20,2029-12-14,Fall semester
+2029,Fall,Week_Of_Welcome,2029-08-13,2029-08-19,Week of Welcome (move-in week before Fall semester)
+2029,Fall,University_Holiday,2029-09-05,2029-09-07,Labor Day weekend
+2029,Fall,University_Holiday,2029-11-11,2029-11-11,Veterans Day
+2029,Fall,Thanksgiving_Break,2029-11-17,2029-11-25,Thanksgiving week
+2029,Fall,Dead_Week,2029-12-03,2029-12-09,Dead Week before Fall finals
+2029,Fall,Finals_Week,2029-12-10,2029-12-14,Fall finals week
+2029,Fall,Winter_Break,2029-12-15,2030-01-10,Winter break between semesters
+2026,Spring,Semester,2026-01-11,2026-05-08,Spring semester
+2026,Spring,University_Holiday,2026-01-17,2026-01-19,MLK Day weekend
+2026,Spring,University_Holiday,2026-02-21,2026-02-23,Presidents Day weekend
+2026,Spring,Spring_Break,2026-03-10,2026-03-14,Spring break
+2026,Spring,Dead_Week,2026-04-27,2026-05-03,Dead Week before Spring finals
+2026,Spring,Finals_Week,2026-05-04,2026-05-08,Spring finals week
+2026,Spring,University_Holiday,2026-05-30,2026-06-01,Memorial Day weekend
+2027,Spring,Semester,2027-01-11,2027-05-07,Spring semester
+2027,Spring,University_Holiday,2027-01-16,2027-01-18,MLK Day weekend
+2027,Spring,University_Holiday,2027-02-20,2027-02-22,Presidents Day weekend
+2027,Spring,Spring_Break,2027-03-10,2027-03-14,Spring break
+2027,Spring,Dead_Week,2027-04-26,2027-05-02,Dead Week before Spring finals
+2027,Spring,Finals_Week,2027-05-03,2027-05-07,Spring finals week
+2027,Spring,University_Holiday,2027-05-29,2027-05-31,Memorial Day weekend
+2028,Spring,Semester,2028-01-10,2028-05-05,Spring semester
+2028,Spring,University_Holiday,2028-01-15,2028-01-17,MLK Day weekend
+2028,Spring,University_Holiday,2028-02-19,2028-02-21,Presidents Day weekend
+2028,Spring,Spring_Break,2028-03-10,2028-03-14,Spring break
+2028,Spring,Dead_Week,2028-04-24,2028-04-30,Dead Week before Spring finals
+2028,Spring,Finals_Week,2028-05-01,2028-05-05,Spring finals week
+2028,Spring,University_Holiday,2028-05-27,2028-05-29,Memorial Day weekend
+2029,Spring,Semester,2029-01-08,2029-05-04,Spring semester
+2029,Spring,University_Holiday,2029-01-20,2029-01-22,MLK Day weekend
+2029,Spring,University_Holiday,2029-02-17,2029-02-19,Presidents Day weekend
+2029,Spring,Spring_Break,2029-03-10,2029-03-14,Spring break
+2029,Spring,Dead_Week,2029-04-23,2029-04-29,Dead Week before Spring finals
+2029,Spring,Finals_Week,2029-04-30,2029-05-04,Spring finals week
+2029,Spring,University_Holiday,2029-05-26,2029-05-28,Memorial Day weekend
+2030,Spring,Semester,2030-01-07,2030-05-03,Spring semester
+2030,Spring,University_Holiday,2030-01-19,2030-01-21,MLK Day weekend
+2030,Spring,University_Holiday,2030-02-16,2030-02-18,Presidents Day weekend
+2030,Spring,Spring_Break,2030-03-10,2030-03-14,Spring break
+2030,Spring,Dead_Week,2030-04-22,2030-04-28,Dead Week before Spring finals
+2030,Spring,Finals_Week,2030-04-29,2030-05-03,Spring finals week
+2030,Spring,University_Holiday,2030-05-25,2030-05-27,Memorial Day weekend
