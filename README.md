@@ -1,63 +1,166 @@
+
+<img src="https://github.com/gudino27/CougarPark/blob/b4541b8f5c72b695a94e86aa11cb0c0daa9baf26/cougarpark.png" width="30%" style="position: relative; top: 0; right: 0;" alt="Project Logo"/>
+
 # CougarPark
 
-Predicting Parking Availability Across WSU Campus Lots Using Machine Learning
+<div align="center">
 
-## Project Description
+<img src="https://img.shields.io/github/license/gudino27/CougarPark?style=flat&logo=opensourceinitiative&logoColor=white&color=0080ff" alt="license">
+<img src="https://img.shields.io/github/last-commit/gudino27/CougarPark?style=flat&logo=git&logoColor=white&color=0080ff" alt="last-commit">
+<img src="https://img.shields.io/github/languages/top/gudino27/CougarPark?style=flat&color=0080ff" alt="top-language">
+<img src="https://img.shields.io/github/languages/count/gudino27/CougarPark?style=flat&color=0080ff" alt="language-count">
 
-CougarPark addresses the parking challenges at WSU Pullman campus by using machine learning to predict hourly parking availability across campus lots. The system helps approximately 16,000 students, 1,500 faculty/staff, and campus visitors find parking more efficiently.
+<img src="https://img.shields.io/badge/Python-3776AB.svg?style=flat&logo=Python&logoColor=white" alt="Python">
+<img src="https://img.shields.io/badge/React-61DAFB.svg?style=flat&logo=React&logoColor=black" alt="React">
+<img src="https://img.shields.io/badge/FastAPI-009688.svg?style=flat&logo=FastAPI&logoColor=white" alt="FastAPI">
+<img src="https://img.shields.io/badge/Jupyter-F37626.svg?style=flat&logo=Jupyter&logoColor=white" alt="Jupyter">
+<img src="https://img.shields.io/badge/scikitlearn-F7931E.svg?style=flat&logo=scikit-learn&logoColor=white" alt="scikit-learn">
+<img src="https://img.shields.io/badge/pandas-150458.svg?style=flat&logo=pandas&logoColor=white" alt="pandas">
 
-## Problem Statement
+</div>
 
-WSU's Pullman campus has limited parking spaces relative to demand. Students typically arrive 15-45 minutes early to find parking spots, especially in high-demand zones near the CUB, library, and academic buildings. Parking availability is unpredictable due to varying factors including class schedules, weather, special events (football games), and seasonal variations.
+---
 
-## Solution Approach
+## Overview
 
-Develop a machine learning model that predicts parking availability on an hourly basis by:
+CougarPark is a smart parking prediction system for the WSU Pullman campus. It uses machine learning to forecast parking lot occupancy and enforcement risk, helping students and staff find parking before they drive there.
 
-- Analyzing historical parking occupancy data of the past 5 years.
-- Incorporating contextual factors: academic calendar, special events, weather conditions
-- Providing real-time predictions of available parking spaces per lot
-- Suggesting optimal arrival times based on predicted availability
+The system is built on real data from the WSU Transportation Department: License Plate Recognition (LPR) records, AMP parking session logs, and enforcement ticket history spanning multiple years. Weather data from the Open-Meteo API and WSU academic calendar events are integrated as features to improve prediction accuracy.
 
-## Target Model Types
+---
 
-- Random Forest Regression
-- Gradient Boosting Models
-- Time Series Forecasting
+## What It Does
 
-Model selection will depend on available data characteristics and prediction accuracy.
+**Occupancy Prediction:** given a parking zone and time, predicts how full the lot is likely to be. Trained on hourly aggregated occupancy rates derived from raw parking session data.
+
+**Enforcement Risk Prediction:** predicts the likelihood of a ticket in a given zone at a given time. Trained on historical ticket and LPR data, with lot-level granularity (CUE Garage, Library Garage, etc. modeled separately).
+
+**User Feedback Loop:** the React frontend collects user confirmations of whether parking was found and how long the search took, providing ground truth for future model iterations.
+
+---
+
+## Data Pipeline
+
+The `notebooks/` directory contains the full ML pipeline in numbered sequence:
+
+**Shared preprocessing:**
+- `01_data_exploration.ipynb`: initial examination of raw WSU Transportation data — structure, quality, coverage
+- `02_data_preprocessing.ipynb`: merges LPR and AMP data, temporal feature engineering, quality checks
+- `03_calendar_enrichment.ipynb` / `04_lpr_calendar_enrichment.ipynb`: integrates WSU academic calendar context
+- `06_fetch_weather_data.ipynb` / `07_weather_enrichment.ipynb`: pulls and merges Open-Meteo historical weather
+- `08_exploratory_data_analysis.ipynb`: distributions, correlations, temporal patterns
+- `09_model_validation_strategy.ipynb`: cross-validation approach to prevent overfitting
+- `10_create_amp_zone_mapping.ipynb`: standardizes zone naming across datasets
+- `11_data_cleaning_validation.ipynb`: removes stale lots, validates parking type classifications
+
+**Occupancy models:**
+- `01_occupancy_data_transformation.ipynb`: converts raw session data to hourly occupancy rates per zone
+- `02_occupancy_prediction_models.ipynb`: trains and evaluates occupancy forecasting models
+
+**Enforcement models:**
+- `01_ticket_analysis.ipynb` through `10_create_zone_level_from_lots.ipynb`: ticket analysis, pattern identification, fixed camera identification, lot-level and zone-level enforcement model training
+
+---
+
+## Models
+
+| Model | Type | Purpose |
+|---|---|---|
+| Occupancy | Gradient Boosted (XGBoost / LightGBM) | Predict hourly lot occupancy rate |
+| Enforcement Risk | XGBoost with lag + temporal features | Predict ticket likelihood per lot |
+
+Model metadata (features, hyperparameters, performance metrics) stored in `models/`.
+
+---
+
+## Architecture
+
+```
+React Frontend (cougarpark/)
+        │
+        ▼
+FastAPI Backend (src/parking_api.py)
+        │
+   ┌────┴────┐
+   ▼         ▼
+Occupancy   Enforcement
+Model       Risk Model
+        │
+feature_engineering.py
+(temporal, weather, calendar, LPR lag features)
+```
+
+---
 
 ## Project Structure
 
 ```
-437_project/
-├── data/              # Raw and processed data files
-│   ├── processed/     # Cleaned and transformed data  
-│   └── raw/   	       # Original data from transportation department
-├── models/            # Saved trained models
-├── notebooks/         # Jupyter notebooks for analysis and modeling
-└── src/               # Python modules for reusable functions
- 
+CougarPark/
+├── src/
+│   ├── parking_api.py          # FastAPI backend: prediction endpoints, feature prep, model inference
+│   └── feature_engineering.py # Feature generation: temporal, weather, enforcement, historical lags
+├── notebooks/
+│   ├── shared/                 # Data exploration, preprocessing, enrichment, EDA, validation
+│   ├── occupancy/              # Occupancy data transformation and model training
+│   └── enforcement/            # Ticket analysis, enforcement patterns, risk model training
+├── models/
+│   ├── occupancy_model_metadata.json
+│   └── enforcement_model_metadata.json
+├── cougarpark/                 # React + Vite frontend
+│   └── src/
+│       ├── App.jsx             # Zone/time selection, prediction fetch, recommendations
+│       └── components/         # ZoneSelector, TimeSelector, PredictionDisplay, FeedbackForm, FindParkingNow
+├── config.json                 # Active models, API config, feature toggles
+└── requirements.txt
 ```
 
-## Expected Outcomes
+---
 
-- **15-minute interval parking availability predictions** for campus lots
-- **Specific recommendations** (e.g., "23 spaces available at CUE Garage")
-- Identification of optimal parking times and locations
-- Reduced time spent searching for parking
-- Improved campus traffic flow
-- Data-driven insights into parking patterns and trends
-- Enforcement risk predictions (when citations are likely)
+## Getting Started
 
-### Data Quality Improvements
+### Prerequisites
 
-- **Upgraded to 15-minute intervals:** Changed from hourly to 15-minute time granularity for more precise predictions
-- **Excluded invalid lots:** Removed lots 21, 50, 55, 56, 101, 178, 179 (no longer exist)
-- **Excluded special zones:** Removed B St Lot (church agreement) and JumpTest (test zone)
-- **Event-only parking flagged:** Football game zones marked separately
-- **Dead Week feature added:** Week before finals now tracked separately for unique parking patterns
+- Python ≥ 3.10
+- Node.js ≥ 18
 
-## Team
+### Backend
 
-Jaime Gudino, Kenneth Son, Kyle Grentz
+```bash
+git clone https://github.com/gudino27/CougarPark
+cd CougarPark
+
+pip install -r requirements.txt
+pip install -r src/requirements.txt
+
+# Start the API
+python src/parking_api.py
+```
+
+### Frontend
+
+```bash
+cd cougarpark
+npm install
+npm run dev
+```
+
+### Running the ML Pipeline
+
+Run notebooks in order within each subdirectory: `shared/` first, then `occupancy/` and `enforcement/` in parallel.
+
+```bash
+cd notebooks
+jupyter notebook
+```
+
+### Tests
+
+```bash
+pytest
+```
+
+---
+
+## License
+
+MIT. See [LICENSE](LICENSE) for details.
