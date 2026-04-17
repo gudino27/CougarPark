@@ -1,5 +1,6 @@
-
-<img src="https://github.com/gudino27/CougarPark/blob/b4541b8f5c72b695a94e86aa11cb0c0daa9baf26/cougarpark.png" width="30%" style="position: relative; top: 0; right: 0;" alt="Project Logo"/>
+<div align="center"> 
+<img src="https://github.com/gudino27/CougarPark/blob/b4541b8f5c72b695a94e86aa11cb0c0daa9baf26/cougarpark.png" width="30%" style="relative: center; top: 0; right:0;" alt="Project Logo"/>
+</div>
 
 # CougarPark
 
